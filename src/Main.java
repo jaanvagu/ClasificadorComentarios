@@ -5,12 +5,15 @@
 
 public class Main {
 
-    public static void main(String[] args) {
-                        
-        LeerArchivoCSV l = new LeerArchivoCSV();
-        l.leerYAlmacenarLineasCSV();
+    private static LeerArchivoCSV leerArchivoCSV;
+    private static Preprocesamiento preprocesamiento;
+    private static Lematizar lematizar;
 
-        Preprocesamiento p = new Preprocesamiento(l.obtenerListaComentariosLeidos());        
-        p.ejecutarPreprocesamientoSecuencial();                                                 
+    public static void main(String[] args) {
+        
+        leerArchivoCSV = new LeerArchivoCSV();
+        leerArchivoCSV.leerYAlmacenarLineasCSV();
+        preprocesamiento = new Preprocesamiento(leerArchivoCSV.obtenerListaComentariosLeidos());
+        lematizar = new Lematizar(preprocesamiento.obtenerMensajesProcesados());        
     }
 }
