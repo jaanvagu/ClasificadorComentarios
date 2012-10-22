@@ -136,8 +136,8 @@ public class LeerArchivoCSV {
     //1) Cada celda contigua al mensaje del comentario tiene el nombre de una etiqueta.
     //   Ejemplo
     // Encabezado:  Mensaje | Categoria 1| Categoria 2
-    // Comentario1:    X    |  Etiqueta  | Etiqueta
-    // Comentario1:    Y    |  Etiqueta  | Etiqueta
+    // Comentario1:    X    |  EtiquetaA | EtiquetaB
+    // Comentario1:    Y    |  EtiquetaC | EtiquetaD
     //2) Las celdas contiguas al mensaje del comentario, son valores que indican correspondencia,
     //   es decir: las etiquetas se encuentran en el encabezado, y si una etiqueta Y pertenece a un
     //   comentario X, en la fila del comentario X se asigna un valor en la columna que corresponda
