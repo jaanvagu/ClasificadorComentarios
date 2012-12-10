@@ -3,9 +3,10 @@
  */
 
 
+import java.io.Serializable;
 import java.util.*;
 
-public class ComentarioNormalizado {
+public class ComentarioNormalizado implements Serializable{
 
     private Vector<String> listaPalabrasEnComentario; //Variable que almacena es un Vector, cada palabra de un comentario (mensaje).
     private Vector<String> etiquetas; // Variable que contiene las Etiquetas de un comentario.
