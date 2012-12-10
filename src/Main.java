@@ -9,7 +9,10 @@ public class Main {
 
     private static LeerArchivoCSV leerArchivoCSV;
     private static Preprocesamiento preprocesamiento;
-    private static Lematizar lematizar;    
+    private static Lematizar lematizar;
+    private static GestionarArchivos gestionArchivos;
+    private static GestionarVectorPalabras gestionVectorPalabras;
+    private static GestionarDistancias gestionDistancias;
 
     //Variable que almacena los comentarios de la siguiente manera:
     //  Lista de Comentarios Normalizados = [ComentarioNormalizado(1), ComentarioNormalizado(2), ..., ComentarioNormalizado(N)  ]
@@ -29,14 +32,25 @@ public class Main {
                                                                     listaComentariosOriginal.elementAt(i).obtenerEtiquetas());
             listaComentariosNormalizados.addElement(comentarioNormalizadoActual);
         }
+        gestionArchivos = new GestionarArchivos();
+        gestionArchivos.guardarComentariosNormalizados(listaComentariosNormalizados);
+
     }
 
-    public static void main(String[] args) {
-        
+    public static void main(String[] args) {                
         leerArchivoCSV = new LeerArchivoCSV();
         leerArchivoCSV.leerYAlmacenarLineasCSV();
         preprocesamiento = new Preprocesamiento(leerArchivoCSV.obtenerListaComentariosLeidos());
         lematizar = new Lematizar(preprocesamiento.obtenerMensajesProcesados());
         normalizarComentarios(lematizar.obtenerListaMensajesLematizados(), leerArchivoCSV.obtenerListaComentariosLeidos());        
+        gestionVectorPalabras = new GestionarVectorPalabras();
+        gestionDistancias = new GestionarDistancias();
+        gestionVectorPalabras.contruirVectorDePalabras();
+        gestionVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
+        gestionDistancias.calcularDistanciaEuclideanaEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());        
     }
 }
+
+
+
+
