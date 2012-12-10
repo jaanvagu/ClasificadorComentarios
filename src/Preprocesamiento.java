@@ -4,8 +4,11 @@
 
 
 import java.util.*;
+import java.util.regex.*;
 
 public class Preprocesamiento {
+
+    boolean a = true;
             
     private Vector<String> listaMensajesProcesados;
     
@@ -15,10 +18,10 @@ public class Preprocesamiento {
         "aun","aunque","b","bajo","bastante","bien","breve","c","casi","cerca","claro","como","con", "conmigo","contigo","contra",
         "cual","cuales","cuando","cuanta","cuantas","cuanto","cuantos","d","de","debajo","del","delante","demasiado",
         "dentro","deprisa","desde","despacio","despues","detras","dia","dias", "donde","dos","durante","e","el","ella",
-        "ellas","ellos","en","encima","enfrente", "enseguida","entre","es","esa","esas","ese","eso","esos","esta","está",
-        "estado","estados","estan","estar","estas","este","esto","estos","ex", "excepto","f","final","fue","fuera","fueron","g",
+        "ellas","ellos","en","encima","enfrente", "enseguida","entre","email","es","esa","esas","ese","eso","esos","esta",
+        "estado","estados","estas","este","esto","estos","ex", "excepto","f","final","fue","fuera","fueron","g",
         "general","gran","h","ha","habia","habla", "hablan","hace","hacia","han","hasta","hay","horas","hoy","i","incluso","informo",
-        "j","junto", "k","l","la","lado","las","le","lejos","lo","los","luego","m","mal","mas","mayor","me","medio", "mejor","menos",
+        "j","junto", "k","l","la","lado","las","le","lejos","lo","los","luego","m","mal","mail","mas","mayor","me","medio", "mejor","menos",
         "menudo","mi","mia","mias","mientras","mio","mios","mis", "mismo","mucho","muy","n","nada","nadie","ninguna","no",
         "nos","nosotras","nosotros","nuestra","nuestras", "nuestro","nuestros","nueva","nuevo","nunca","ñ","o","os","otra","otros","p",
         "pais","para","parte", "pasado","peor","pero","poco","por","porque","pronto","proximo","puede","q","qeu","que", "quien",
@@ -27,25 +30,13 @@ public class Preprocesamiento {
         "tarde","te","temprano","ti","tiene","todavia","todo","todos","tras","tu", "tus","tuya","tuyas","tuyo","tuyos","u","un","una",
         "unas","uno","unos","usted","ustedes","v","veces", "vez","vosotras","vosotros","vuestra","vuestras","vuestro","vuestros","w","x","y",
         "ya","yo","z"
-    };
+    };    
 
-    private final String[] listaCaracteresEspeciales = {
-        "¹", "²", "³", "™", "«", "»", "•", "°", "°", "º", "±", "‡", "»", "†", "«", "Ψ", "Ψψ", "Ψ", "Ψ", "φ", "ψ", "ˆ", "ˇ", "ˉ", "˘", "˙",
-        "˚", "№", "™", "⅛", "⅜", "⅝", "⅞", "∞", "∫", "≈", "▀▄", "█", "▌", "▐", "▐", "░", "▒", "▓", "■", "■", "□", "▪", "▫", "�", 
-        "▫▬", "▲", "►", "▼", "◄", "◊", "◊", "○", "●", "◘", "◘", "◙", "◦", "☺", "☻", "☻", "☼", "♀", "♂", "♠♠", "♣", "♥", "♦", "♫",
-        "♬", "♪", "♩", "♭♪", "ﬂ", "©", "★", "☆웃", "❤", "유", "ツ", "ҳ̸Ҳ̸ҳ", "≠", "☠", "☮", "|♥|", "♋", "✿", "ﻬ", "ஐ", "✲❣·•●", "➸", "❝❞"
-        ,"﹌", "✎", "✟", "➹", "❀", "☂", "♨☎", "☏", "✖", "♂", "♀", "๑", "۩", "✗☉", "▣", "⊙", "⊕", "♤", "εїз", "☜", "☞", "ⓐ", "ⓑ", "ⓒ",
-        "ⓓ", "ⓔ", "ⓕ", "ⓖ", "ⓗ", "ⓘ", "ⓙ", "ⓚ", "ⓛ", "ⓜ", "ⓝ", "ⓞ", "ⓟ", "ⓠ", "ⓡ", "ⓢ", "ⓣ", "ⓤ", "ⓥ", "ⓦ", "ⓧ", "ⓨ", "ⓩ", "="
-    };
+    private final String[] listaInicialesRedesSociales = {"@", "#", "rt", "twitter", "tweet", "face", "facebook", "fb"};
 
-    private final String[] listaSignosDePuntuacion = {
-        "\\.", "\\?", "¿", ",", "¡", "!", "'", "\"", ":", ";", "\\(", "\\)", "\\[", "\\]", "\\{", "\\}", "-", "_", "“", "”"
-    };
-
-    private final String[] listaInicialesRuidoTuiter = {"@", "#", "rt", "twitter", "tweet"};
-
-    private final String[] listaInicialesOnomatopeyas = {
-        "jaja", "jeje", "jiji", "haha", "hehe", "hihi", "wow", "woow"
+    private final String[] listaPatronesOnomatopeyas = {
+        "[ja]{2,}", "[je]{2,}", "[ji]{2,}", "[ha]{2,}", "[he]{2,}", "[hi]{2,}", "[wo]{2,}", "[oh]{2,}", "[ah]{2,}", "[o]{2,}",
+        "[a]{2,}", "[e]{2,}", "[u]{2,}", "[i]{2,}"
     };
 
     //Constructor que recibe una lista de comentarios, obtiene los mensajes de
@@ -61,19 +52,28 @@ public class Preprocesamiento {
         ejecutarPreprocesamientoSecuencial();
     }
 
+    private void ejecutarPreprocesamientoSecuencial(){        
+        ejecutarTipoPreProcesamiento("convertirAMinusculas");
+        ejecutarTipoPreProcesamiento("eliminarAcentos");
+        ejecutarTipoPreProcesamiento("eliminarRuidoRedesSociales");
+        ejecutarTipoPreProcesamiento("eliminarURLs");
+        ejecutarTipoPreProcesamiento("eliminarOnomatopeyas");
+        ejecutarTipoPreProcesamiento("eliminarCaracteresDiferentesALetras");
+        ejecutarTipoPreProcesamiento("eliminarPalabrasVacias");
+        ejecutarTipoPreProcesamiento("eliminarEspaciosEnBlancoAdicionales");
+    }
+
     //Método que recorre la lista de mensajes y ejecuta una función según el tipo que le ingrese como parámetro
     //Se apoya en métodos auxiliares definidos posteriormente. 
     private void ejecutarTipoPreProcesamiento(String tipo){
         for(int i=0; i<listaMensajesProcesados.size(); i++){
             StringBuilder mensajePreProcesado = new StringBuilder();
             StringTokenizer tokensMensajeParaProcesar = new StringTokenizer(listaMensajesProcesados.elementAt(i));
+            int contador = 0;
             while(tokensMensajeParaProcesar.hasMoreTokens()){
                 String palabra = tokensMensajeParaProcesar.nextToken();
                 
-                if(tipo.equals("eliminarSignosDePuntuacion")){
-                    mensajePreProcesado.append(quitarSignosDePuntuacionEnPalabra(palabra)).append(" ");
-                }                
-                else if (tipo.equals("eliminarRuidoTuiter")){
+                if(tipo.equals("eliminarRuidoRedesSociales")){
                     if(!esRuidoTuiter(palabra))
                         mensajePreProcesado.append(palabra).append(" ");
                 }
@@ -84,54 +84,59 @@ public class Preprocesamiento {
                 else if (tipo.equals("eliminarOnomatopeyas")){
                     if(!esOnomatopeya(palabra))
                         mensajePreProcesado.append(palabra).append(" ");
-                }                
-                else if (tipo.equals("eliminarCaracteresEspeciales")) {
-                    mensajePreProcesado.append(quitarCaracteresEspecialesEnPalabra(palabra)).append(" ");
-                }
+                }                                
                 else if (tipo.equals("convertirAMinusculas")) {
                     mensajePreProcesado.append(convertirAMinusculas(palabra)).append(" ");
                 }
                 else if (tipo.equals("eliminarAcentos")) {
                     mensajePreProcesado.append(quitarAcentos(palabra)).append(" ");
                 }
+                else if(tipo.equals("eliminarCaracteresDiferentesALetras")){
+                    mensajePreProcesado.append(eliminarCaracteresDiferentesALetras(palabra)).append(" ");
+                }
                 else if (tipo.equals("eliminarPalabrasVacias")){
                     if(!esPalabraVacia(palabra))
                         mensajePreProcesado.append(palabra).append(" ");
                 }
-                else if (tipo.equals("eliminarEspaciosEnBlancoAdicionales")){
-                    mensajePreProcesado.append(palabra).append(" ");
+                else if (tipo.equals("eliminarEspaciosEnBlancoAdicionales")){                                                            
+                    if((tokensMensajeParaProcesar.countTokens())!=0){
+                        mensajePreProcesado.append(palabra.trim()).append(" ");
+                    }
+                    else{
+                        mensajePreProcesado.append(palabra.trim());        
+                    }                                        
                 }
                 else{
                     System.out.println("Tipo mal escrito");
                 }
+
+                contador++;
             }
             listaMensajesProcesados.setElementAt(mensajePreProcesado.toString(),i);
         }
-    }    
-
-    //Toma un palabra y quita los signos de puntuacion que encuentre. 
-    //Finalmente retorna la palabra sin signos de puntuacion.
-    private String quitarSignosDePuntuacionEnPalabra(String palabra){               
-        for(int i=0; i<listaSignosDePuntuacion.length; i++){            
-            palabra = palabra.replaceAll(listaSignosDePuntuacion[i], "");
-        }
-        String palabraSinSignos = palabra.trim();
-        return palabraSinSignos;
-    }
+    }         
 
     //Identidica si una palabra contiene ruido generado por la red social tuiter.
     private boolean esRuidoTuiter(String palabra){
-        if(palabra.startsWith(listaInicialesRuidoTuiter[0]) || palabra.startsWith(listaInicialesRuidoTuiter[1]) ||
-                palabra.startsWith(listaInicialesRuidoTuiter[2])){
-            return true;
+        for(int i=0; i<listaInicialesRedesSociales.length; i++){
+            if(palabra.startsWith(listaInicialesRedesSociales[i]))
+                return true;
         }
-        else
-            return false;
+        return false;
     }
 
     //Identifica si una palabra es una direccion web o URL
     private boolean esURL(String palabra){
-        if(palabra.startsWith("http") || palabra.startsWith("www"))
+        String recorteDosCaracteres, recorteTresCaracteres;
+        recorteTresCaracteres = "#";
+        recorteDosCaracteres = "#";
+        if(palabra.length()>=4){
+            if(palabra.length()>=5)
+                recorteTresCaracteres = palabra.substring(palabra.length()-4,palabra.length()-3);                       
+            recorteDosCaracteres = palabra.substring(palabra.length()-3,palabra.length()-2);
+        }       
+
+        if(palabra.startsWith("http") || palabra.startsWith("www") || recorteDosCaracteres.equals(".") || recorteTresCaracteres.equals("."))
             return true;
         else
             return false;
@@ -139,22 +144,14 @@ public class Preprocesamiento {
 
     //Identifica si una palabra es onomatopeya
     private boolean esOnomatopeya(String palabra){
-        for(int i=0; i<listaInicialesOnomatopeyas.length; i++){
-            if(palabra.startsWith(listaInicialesOnomatopeyas[i]))
+        for(int i=0; i<listaPatronesOnomatopeyas.length; i++){
+            Pattern patron = Pattern.compile(listaPatronesOnomatopeyas[i]);
+            Matcher verificador = patron.matcher(palabra);
+            if(verificador.matches())
                 return true;            
         }
         return false;
-    }
-
-    //Toma un palabra y quita los caracteres especiales que encuentre.
-    //Finalmente retorna la palabra sin caracteres especiales.
-    private String quitarCaracteresEspecialesEnPalabra(String palabra){
-        for(int i=0; i<listaCaracteresEspeciales.length; i++){
-            palabra = palabra.replaceAll(listaCaracteresEspeciales[i], "");
-        }
-        String palabraSinCaracteres = palabra.trim();
-        return palabraSinCaracteres;
-    }
+    }    
 
     //Recibe una palabra y la retorna con cada una de sus letras en minuscula.
     private String convertirAMinusculas(String mensaje){
@@ -176,7 +173,7 @@ public class Preprocesamiento {
         return palabra;
     }
 
-    //Identifica si una palabra es "Palabra Vacia" (Las palabras vacias estan definidas como atributo de clase).
+    //Identifica si una palabra es "Palabra Vacia" (Las palabras vacias estan definidas en una lista, que es un atributo de clase).
     private boolean esPalabraVacia(String palabra){
         for(int i=0; i<listaPalabrasVacias.length; i++){
             if(palabra.equals(listaPalabrasVacias[i]))
@@ -185,18 +182,20 @@ public class Preprocesamiento {
         return false;
     }
 
-    private void ejecutarPreprocesamientoSecuencial(){
-        ejecutarTipoPreProcesamiento("eliminarSignosDePuntuacion");
-        ejecutarTipoPreProcesamiento("eliminarCaracteresEspeciales");
-        ejecutarTipoPreProcesamiento("convertirAMinusculas");
-        ejecutarTipoPreProcesamiento("eliminarAcentos");
-        ejecutarTipoPreProcesamiento("eliminarRuidoTuiter");
-        ejecutarTipoPreProcesamiento("eliminarURLs");
-        ejecutarTipoPreProcesamiento("eliminarOnomatopeyas");
-        ejecutarTipoPreProcesamiento("eliminarPalabrasVacias");
-        ejecutarTipoPreProcesamiento("eliminarEspaciosEnBlancoAdicionales");
+    //Filtra caracteres a través de código ASCII, elimina los que no estén contenidos entre la a....z, los que no sean espacios
+    //y lo diferente a "ñ"
+    private String eliminarCaracteresDiferentesALetras(String palabra){        
+        StringBuilder tempPalabra = new StringBuilder();
+        for (int i=0; i<palabra.length(); i++){
+            int codigoASCIILetra = palabra.codePointAt(i);
+            if(codigoASCIILetra>=97 && codigoASCIILetra<=122 || codigoASCIILetra==241 || codigoASCIILetra==32){
+                tempPalabra.append(palabra.charAt(i));
+            }
+        }        
+        return tempPalabra.toString();
     }
 
+    
     public Vector<String> obtenerMensajesProcesados(){
         return listaMensajesProcesados;
     }            
