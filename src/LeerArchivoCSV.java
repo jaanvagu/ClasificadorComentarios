@@ -107,18 +107,18 @@ public class LeerArchivoCSV {
                 int posColumna = indices.elementAt(i);
                 String campoLeido = lectorArchivosCSV.get(posColumna);                
                 if(i==0){
-                    autor = campoLeido;
+                    autor = campoLeido.trim();
                 }
-                else if (i==1){
-                    mensaje = campoLeido;
+                else if (i==1){                    
+                    mensaje = campoLeido.trim();                    
                 }
                 else if (i==2){
-                    fuente = campoLeido;
+                    fuente = campoLeido.trim();
                 }
                 else{
-                    todasEtiquetasLeidasPorFila.addElement(campoLeido);
+                    todasEtiquetasLeidasPorFila.addElement(campoLeido.trim());
                     if(!campoLeido.trim().isEmpty())
-                        etiquetasLeidasPorFila.addElement(campoLeido);
+                        etiquetasLeidasPorFila.addElement(campoLeido.trim());
                 }
             }            
             etiquetasLeidasPorFila = identificarFormaEtiqueta(etiquetasLeidasPorFila,indices,todasEtiquetasLeidasPorFila);            
