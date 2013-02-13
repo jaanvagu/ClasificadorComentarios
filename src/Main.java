@@ -1,5 +1,6 @@
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Septiembre 13 de 2013
  */
 
 
@@ -13,6 +14,9 @@ public class Main {
     private static GestionarArchivos gestionArchivos;
     private static GestionarVectorPalabras gestionVectorPalabras;
     private static GestionarDistancias gestionDistancias;
+    private static GestionarSemillas gestionSemillas;
+    private static LeerArchivoSalidaLP leerArchivoSalidaLP;
+    private static GestionarIndicadores gestionIndicadores;
 
     //Variable que almacena los comentarios de la siguiente manera:
     //  Lista de Comentarios Normalizados = [ComentarioNormalizado(1), ComentarioNormalizado(2), ..., ComentarioNormalizado(N)  ]
@@ -34,23 +38,40 @@ public class Main {
         }
         gestionArchivos = new GestionarArchivos();
         gestionArchivos.guardarComentariosNormalizados(listaComentariosNormalizados);
+    }           
 
-    }
-
+    
     public static void main(String[] args) {                
+        /*
         leerArchivoCSV = new LeerArchivoCSV();
         leerArchivoCSV.leerYAlmacenarLineasCSV();
         preprocesamiento = new Preprocesamiento(leerArchivoCSV.obtenerListaComentariosLeidos());
         lematizar = new Lematizar(preprocesamiento.obtenerMensajesProcesados());
-        normalizarComentarios(lematizar.obtenerListaMensajesLematizados(), leerArchivoCSV.obtenerListaComentariosLeidos());        
-        gestionVectorPalabras = new GestionarVectorPalabras();
-        gestionDistancias = new GestionarDistancias();
-        gestionVectorPalabras.contruirVectorDePalabras();
-        gestionVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
-        gestionDistancias.calcularDistanciaEuclideanaEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());        
+        normalizarComentarios(lematizar.obtenerListaMensajesLematizados(), leerArchivoCSV.obtenerListaComentariosLeidos());
+        //*/
+
+//        gestionArchivos = new GestionarArchivos();
+//        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados();
+//        DistribuirDatos distribuir = new DistribuirDatos(listaComentariosNormalizados);
+//        listaComentariosNormalizados = new Vector(distribuir.generarDistribucionNDatos(200));        
+//        System.out.println("Tam Com Distribuidos: "+listaComentariosNormalizados.size());
+//
+//        gestionVectorPalabras = new GestionarVectorPalabras();
+//        gestionDistancias = new GestionarDistancias();
+//        gestionSemillas = new GestionarSemillas(listaComentariosNormalizados);
+//        gestionVectorPalabras.contruirVectorDePalabras();
+//        gestionVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
+////        gestionDistancias.calcularDistanciaEuclideanaEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
+////        gestionDistancias.calcularDistanciaEuclideanaInvertidaEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
+//        gestionDistancias.calcularSimilitudCosenoEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
+//        gestionSemillas.generarArchivoSemillas(20);
+//        gestionSemillas.generarArchivoSolucion();
+        leerArchivoSalidaLP = new LeerArchivoSalidaLP();
+        gestionIndicadores = new GestionarIndicadores(leerArchivoSalidaLP.obtenerListaEtiquetasCorrespondientes(), leerArchivoSalidaLP.obtenerListaEtiquetasPropagadasLP());
+        gestionIndicadores.calcularIndicadorPresicionParaEtiquetas();
+        gestionIndicadores.calcularIndicadorRecallParaEtiquetas();
+        gestionIndicadores.calcularIndicadorFScoreParaEtiquetas();
+        gestionIndicadores.calcularAciertosTotales();
     }
-}
-
-
-
-
+    
+}    
