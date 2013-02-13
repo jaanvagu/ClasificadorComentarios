@@ -1,5 +1,6 @@
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Febrero 13 de 2013
  */
 
 
@@ -7,8 +8,7 @@ import java.util.*;
 
 public class GestionarVectorPalabras {
 
-    private Vector<ComentarioNormalizado> listaComentariosNormalizados;
-    private GestionarArchivos gestionArchivos;
+    private Vector<ComentarioNormalizado> listaComentariosNormalizados;    
 
     private Vector<String> vectorPalabras;
     private Vector<VectorFrecuenciasPalabras> listaVectoresDeFrecuencias;
@@ -16,11 +16,10 @@ public class GestionarVectorPalabras {
     //Constructor que lee la lista de comentarios normalizados desde un archivo local
     public GestionarVectorPalabras(){
         vectorPalabras = new Vector();
-        listaVectoresDeFrecuencias = new Vector();
-        gestionArchivos = new GestionarArchivos();
-        //listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("C:/Users/Jairo Andrés/Desktop/Archivos Guardados/Prueba - Normalizado");
-        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados(
-                "C:/Users/Jairo Andrés/Desktop/Archivos Guardados/P2 - Normalizado");
+        listaVectoresDeFrecuencias = new Vector();        
+        //listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados();
+        ///*TEMPORAL!*/Main.listaComentariosNormalizados = listaComentariosNormalizados;/*TEMPORAL!*/
+        listaComentariosNormalizados = Main.listaComentariosNormalizados;
     }
 
     //Constructor que recibe como parametro la lista de comentarios normalizados.
