@@ -1,5 +1,6 @@
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Febrero 13 de 2013
  */
 
 
@@ -7,10 +8,13 @@ import java.util.*;
 
 public class GestionarDistancias {
     
-    private Vector<Vector<Double>> listaDeDistanciasEntreComentarios;
+    private Vector<Double> listaDeDistanciasEntreComentarios = new Vector();
+    private GestionarArchivos gestionArchivos;
 
     public void calcularDistanciaEuclideanaEntreCadaParDeComentarios(Vector<VectorFrecuenciasPalabras> vectorFrecuenciasComentarios){
         int N = vectorFrecuenciasComentarios.size();
+        gestionArchivos = new GestionarArchivos();
+        gestionArchivos.crearArchivoTexto("input_graph");
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
                 int x = i+1;
@@ -18,10 +22,11 @@ public class GestionarDistancias {
                 VectorFrecuenciasPalabras vectorA = vectorFrecuenciasComentarios.elementAt(i);
                 VectorFrecuenciasPalabras vectorB = vectorFrecuenciasComentarios.elementAt(j);
                 double distancia = calcularDistanciaEuclideanaEntreDosComentarios(vectorA, vectorB);
-                System.out.println("N"+x+"\t"+"N"+y+"\t"+distancia);
-                
+                //System.out.println("N"+x+"\t"+"N"+y+"\t"+distancia);
+                gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+distancia);
             }
-        }        
+        }
+        gestionArchivos.cerrarArchivoTexto();
     }    
 
     public double calcularDistanciaEuclideanaEntreDosComentarios(
@@ -36,12 +41,106 @@ public class GestionarDistancias {
                 distanciaEuclideana += restaPuntos;                    
             }
         }        
-        distanciaEuclideana = Math.sqrt(distanciaEuclideana);        
+        distanciaEuclideana = Math.sqrt(distanciaEuclideana);    
+        listaDeDistanciasEntreComentarios.addElement(distanciaEuclideana);
         return distanciaEuclideana;
     }
 
-    public Vector<Vector<Double>> obtenerListaDeDistanciasEntreComentarios(){
+    public Vector<Double> obtenerListaDeDistanciasEntreComentarios(){
         return listaDeDistanciasEntreComentarios;
     }
+    
+    public void calcularDistanciaEuclideanaInvertidaEntreCadaParDeComentarios(Vector<VectorFrecuenciasPalabras> vectorFrecuenciasComentarios){
+        int N = vectorFrecuenciasComentarios.size();    
+        double umbralDistancias = obtenerUmbralDeDistancias();
+        gestionArchivos = new GestionarArchivos();
+        gestionArchivos.crearArchivoTexto("input_graph");
+        for(int i=0; i<(N-1); i++){
+            for(int j=(i+1); j<N; j++){
+                int x = i+1;
+                int y = j+1;
+                VectorFrecuenciasPalabras vectorA = vectorFrecuenciasComentarios.elementAt(i);
+                VectorFrecuenciasPalabras vectorB = vectorFrecuenciasComentarios.elementAt(j);
+                double distancia = calcularDistanciaEuclideanaInvertidaEntreDosComentarios(vectorA, vectorB, umbralDistancias);
+                //System.out.println("N"+x+"\t"+"N"+y+"\t"+distancia);
+                gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+distancia);
+            }
+        }
+        gestionArchivos.cerrarArchivoTexto();
+    }  
 
+    //Método que convierte la distancia euclideana, en una función de similitud. Usa un umbral para transformar las distancias.
+    // Umbral = U;  Distancia = D
+    // Distancia Invertida = U - D
+    public double calcularDistanciaEuclideanaInvertidaEntreDosComentarios(
+            VectorFrecuenciasPalabras vectorFrecuenciasComentarioA, VectorFrecuenciasPalabras vectorFrecuenciasComentarioB, double umbralDistancias){
+        
+        double distanciaEuclideanaInvertida = 0;
+        for(int i=0; i<vectorFrecuenciasComentarioA.tamanio(); i++){
+            int punto_i_ComentarioA = vectorFrecuenciasComentarioA.elementoEn(i);
+            int punto_i_ComentarioB = vectorFrecuenciasComentarioB.elementoEn(i);
+            if(punto_i_ComentarioA!=0 || punto_i_ComentarioB!=0){
+                double restaPuntos = Math.pow( ((punto_i_ComentarioA+0.0) - (punto_i_ComentarioB+0.0)),  2);
+                distanciaEuclideanaInvertida += restaPuntos;                    
+            }
+        }        
+        distanciaEuclideanaInvertida = Math.sqrt(distanciaEuclideanaInvertida);
+        distanciaEuclideanaInvertida = umbralDistancias - distanciaEuclideanaInvertida;
+        if(distanciaEuclideanaInvertida==0 || distanciaEuclideanaInvertida==0.0)
+            distanciaEuclideanaInvertida = 0.000000001;
+        
+        return distanciaEuclideanaInvertida;
+    }
+    
+    public double obtenerUmbralDeDistancias(){
+        
+        double numeroMayor = 0.0;
+        for(int i=0; i<listaDeDistanciasEntreComentarios.size(); i++){            
+            if(listaDeDistanciasEntreComentarios.elementAt(i)>numeroMayor)
+                numeroMayor = listaDeDistanciasEntreComentarios.elementAt(i);            
+        }
+        System.out.println("Umbral= "+numeroMayor);
+        return numeroMayor;        
+    }
+    
+    public void calcularSimilitudCosenoEntreCadaParDeComentarios(Vector<VectorFrecuenciasPalabras> vectorFrecuenciasComentarios){
+        int N = vectorFrecuenciasComentarios.size();
+        gestionArchivos = new GestionarArchivos();
+        gestionArchivos.crearArchivoTexto("input_graph");
+        for(int i=0; i<(N-1); i++){
+            for(int j=(i+1); j<N; j++){
+                int x = i+1;
+                int y = j+1;
+                VectorFrecuenciasPalabras vectorA = vectorFrecuenciasComentarios.elementAt(i);
+                VectorFrecuenciasPalabras vectorB = vectorFrecuenciasComentarios.elementAt(j);
+                double producto_A_B = productoEscalarVectorial(vectorA, vectorB);
+                if(producto_A_B==0 || producto_A_B == 0.0)
+                    producto_A_B = 0.01;
+                double cardinalidad_A = cardinalidadVectorial(vectorA);
+                double cardinalidad_B = cardinalidadVectorial(vectorB);
+                double similitud = (producto_A_B) / (cardinalidad_A*cardinalidad_B);                
+                gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+similitud);
+            }
+        }
+        gestionArchivos.cerrarArchivoTexto();
+    } 
+    
+    public double productoEscalarVectorial(VectorFrecuenciasPalabras vectorA, VectorFrecuenciasPalabras vectorB){               
+        double productoEscalar = 0;
+        for (int i=0; i<vectorA.tamanio(); i++){
+            double multiplicacionAiBi = (vectorA.elementoEn(i)+0.0) * (vectorB.elementoEn(i)+0.0);           
+            productoEscalar += multiplicacionAiBi;
+        }        
+        return productoEscalar;
+    }
+    
+    public double cardinalidadVectorial(VectorFrecuenciasPalabras vector){               
+        double cardinalidad = 0;
+        for (int i=0; i<vector.tamanio(); i++){
+            double elemento_i_Cuadrado = Math.pow(vector.elementoEn(i)+0.0, 2);
+            cardinalidad += elemento_i_Cuadrado;
+        }
+        cardinalidad = Math.sqrt(cardinalidad);
+        return cardinalidad;
+    } 
 }
