@@ -1,5 +1,8 @@
+package estructuras;
+
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Septiembre 30 de 2012
  */
 
 
@@ -39,7 +42,7 @@ public class Comentario {
         return etiquetas;
     }
 
-    //Método para convertir los atributos de un objeto comentario a String.
+    //Método para convertir los atributos de un objeto comentario a String (para imprimirlos).
     public String aString(){
         String comentario = "";
         String lineaInicialYFinal = "------------------\n";

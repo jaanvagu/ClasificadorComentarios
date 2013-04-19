@@ -1,5 +1,8 @@
+package estructuras;
+
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Diciembre 10 de 2012
  */
 
 
