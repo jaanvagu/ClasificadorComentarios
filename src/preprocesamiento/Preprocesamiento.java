@@ -1,8 +1,12 @@
+package preprocesamiento;
+
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Abril 16 de 2013
  */
 
 
+import estructuras.Comentario;
 import java.util.*;
 import java.util.regex.*;
 
@@ -36,7 +40,7 @@ public class Preprocesamiento {
 
     private final String[] listaPatronesOnomatopeyas = {
         "[ja]{2,}", "[je]{2,}", "[ji]{2,}", "[ha]{2,}", "[he]{2,}", "[hi]{2,}", "[wo]{2,}", "[oh]{2,}", "[ah]{2,}", "[o]{2,}",
-        "[a]{2,}", "[e]{2,}", "[u]{2,}", "[i]{2,}"
+        "[a]{2,}", "[e]{2,}", "[u]{2,}", "[i]{2,}", "[m]{2,}"
     };
 
     //Constructor que recibe una lista de comentarios, obtiene los mensajes de
@@ -46,10 +50,11 @@ public class Preprocesamiento {
         listaMensajesProcesados = new Vector();   
         for(int i=0; i<listaComentarios.size(); i++){
             String mensajeDeComentario = listaComentarios.elementAt(i).obtenerMensaje();                                    
-            listaMensajesProcesados.addElement(mensajeDeComentario);
+            listaMensajesProcesados.addElement(mensajeDeComentario);            
         }
 
         ejecutarPreprocesamientoSecuencial();
+        System.out.println("--Preprocesamiento Realizado--");
     }
 
     private void ejecutarPreprocesamientoSecuencial(){        
