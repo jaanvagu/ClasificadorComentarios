@@ -1,9 +1,12 @@
+package entrada_salida;
+
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Febrero 13 de 2013
+ * Ultima modificacion: Abril 16 de 2013
  */
 
 
+import entrada_salida.GestionarArchivos;
 import java.io.*;
 import java.util.*;
 
@@ -20,7 +23,7 @@ public class LeerArchivoSalidaLP {
 
     private void leerLineasArchivo(){
         try {
-            FileInputStream fis = new FileInputStream(new GestionarArchivos().obtenerRutaArchivo2());
+            FileInputStream fis = new FileInputStream(new GestionarArchivos().obtenerRutaArchivo2(0));
             InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
             BufferedReader bufferlector = new BufferedReader(isr);
             String lineaLeida;            
@@ -43,8 +46,9 @@ public class LeerArchivoSalidaLP {
             stLineaLeida.nextToken(); //Salto de un token que corresponde al identificador del nodo (Ni).
             while(true){
                 String parte = stLineaLeida.nextToken();
-                if(parte.startsWith("1"))
+                if(parte.startsWith("1")) {
                     break;
+                }
                 sbEtiquetaLeida.append(parte).append(" ");
             }
             listaEtiquetasCorrespondientes.addElement(sbEtiquetaLeida.toString().trim());
@@ -60,8 +64,9 @@ public class LeerArchivoSalidaLP {
             while(!stLineaLeida.nextToken().startsWith("1")){}
             while(true){
                 String parte = stLineaLeida.nextToken();
-                if(parte.startsWith("0"))
+                if(parte.startsWith("0")) {
                     break;
+                }
                 sbEtiquetaLeida.append(parte).append(" ");
             }
             listaEtiquetasPropagadasLP.addElement(sbEtiquetaLeida.toString().trim());
@@ -72,14 +77,16 @@ public class LeerArchivoSalidaLP {
     private boolean esEtiquetaSemilla(String linea){
         StringTokenizer stLinea = new StringTokenizer(linea);
         int cantTokens = stLinea.countTokens();
-        for(int i=0; i<cantTokens-2; i++)
+        for(int i=0; i<cantTokens-2; i++) {
             stLinea.nextToken();
+        }
         String indicador = stLinea.nextToken();        
         if(indicador.equals("false")){
             return true;
         }
-        else
+        else {
             return false;
+        }
     }
 
     public Vector<String> obtenerListaEtiquetasCorrespondientes(){

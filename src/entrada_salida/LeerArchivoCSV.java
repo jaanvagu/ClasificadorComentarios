@@ -1,11 +1,15 @@
+package entrada_salida;
+
 /*
  * @author Jairo Andrés
+ * Ultima modificacion: Abril 16 de 2013
  */
 
 
+import entrada_salida.GestionarArchivos;
+import estructuras.Comentario;
 import com.csvreader.CsvReader;
 import java.util.Vector;
-
 
 public class LeerArchivoCSV {
 
@@ -22,14 +26,15 @@ public class LeerArchivoCSV {
     //Método que utiliza la clase GestionArchivos para obtener el texto contenido en un CSV.
     private boolean cargarCSV(){
         gestionArchivos = new GestionarArchivos();
-        rutaArchivo = gestionArchivos.obtenerRutaArchivo();
+        rutaArchivo = gestionArchivos.obtenerRutaArchivo("csv");
         if(!rutaArchivo.equals("vacia")){
             //Se convierte a UTF-8 para corregir errores como por ejemplo que la palabra "cómo" se muestra así: "cÃ³mo"
             lectorArchivosCSV = new CsvReader(gestionArchivos.convertirAFormatoUTF8(rutaArchivo));
             return true;
         }
-        else
-            return false;
+        else{
+            return false;            
+        }
     }
 
     //Método que convierte cada fila de un archivo CSV en un objeto de la clase Comentario,
@@ -116,9 +121,10 @@ public class LeerArchivoCSV {
                     fuente = campoLeido.trim();
                 }
                 else{
-                    todasEtiquetasLeidasPorFila.addElement(campoLeido.trim());
-                    if(!campoLeido.trim().isEmpty())
-                        etiquetasLeidasPorFila.addElement(campoLeido.trim());
+                    todasEtiquetasLeidasPorFila.addElement(campoLeido.trim().toLowerCase());
+                    if(!campoLeido.trim().isEmpty()){
+                        etiquetasLeidasPorFila.addElement(campoLeido.trim().toLowerCase());
+                    }
                 }
             }            
             etiquetasLeidasPorFila = identificarFormaEtiqueta(etiquetasLeidasPorFila,indices,todasEtiquetasLeidasPorFila);            
@@ -169,7 +175,7 @@ public class LeerArchivoCSV {
                     int posicionEnIndices = posicionesDeEtiquetas.elementAt(i)+3;
                     int posicionEtiquetaEnEncabezadoCSV = indices.elementAt(posicionEnIndices);
                     String etiquetaIdentificada = encabezadoArchivoCSV.elementAt(posicionEtiquetaEnEncabezadoCSV);
-                    etiquetasIdentificadas.addElement(etiquetaIdentificada);
+                    etiquetasIdentificadas.addElement(etiquetaIdentificada.toLowerCase());
                 }
             }
             return etiquetasIdentificadas;
