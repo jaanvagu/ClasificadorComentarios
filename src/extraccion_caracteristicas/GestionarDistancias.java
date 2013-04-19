@@ -1,10 +1,14 @@
+package extraccion_caracteristicas;
+
 /*
  * @author Jairo Andrés
  * Ultima modificacion: Febrero 13 de 2013
  */
 
-
+import entrada_salida.GestionarArchivos;
+import estructuras.VectorFrecuenciasPalabras;
 import java.util.*;
+import main.Main;
 
 public class GestionarDistancias {
     
@@ -14,7 +18,7 @@ public class GestionarDistancias {
     public void calcularDistanciaEuclideanaEntreCadaParDeComentarios(Vector<VectorFrecuenciasPalabras> vectorFrecuenciasComentarios){
         int N = vectorFrecuenciasComentarios.size();
         gestionArchivos = new GestionarArchivos();
-        gestionArchivos.crearArchivoTexto("input_graph");
+        gestionArchivos.crearArchivoTexto("input_graph", Main.listaComentariosNormalizados.size());
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
                 int x = i+1;
@@ -54,7 +58,7 @@ public class GestionarDistancias {
         int N = vectorFrecuenciasComentarios.size();    
         double umbralDistancias = obtenerUmbralDeDistancias();
         gestionArchivos = new GestionarArchivos();
-        gestionArchivos.crearArchivoTexto("input_graph");
+        gestionArchivos.crearArchivoTexto("input_graph",Main.listaComentariosNormalizados.size());
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
                 int x = i+1;
@@ -106,7 +110,7 @@ public class GestionarDistancias {
     public void calcularSimilitudCosenoEntreCadaParDeComentarios(Vector<VectorFrecuenciasPalabras> vectorFrecuenciasComentarios){
         int N = vectorFrecuenciasComentarios.size();
         gestionArchivos = new GestionarArchivos();
-        gestionArchivos.crearArchivoTexto("input_graph");
+        gestionArchivos.crearArchivoTexto("input_graph",Main.listaComentariosNormalizados.size());
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
                 int x = i+1;
@@ -123,6 +127,9 @@ public class GestionarDistancias {
             }
         }
         gestionArchivos.cerrarArchivoTexto();
+        //-------------------------------
+        System.out.println("--Similitudes calculadas--");
+        //-------------------------------
     } 
     
     public double productoEscalarVectorial(VectorFrecuenciasPalabras vectorA, VectorFrecuenciasPalabras vectorB){               

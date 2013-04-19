@@ -1,10 +1,14 @@
+package extraccion_caracteristicas;
+
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Febrero 13 de 2013
+ * Ultima modificacion: Abril 16 de 2013
  */
 
-
+import estructuras.ComentarioNormalizado;
+import estructuras.VectorFrecuenciasPalabras;
 import java.util.*;
+import main.Main;
 
 public class GestionarVectorPalabras {
 
@@ -35,11 +39,15 @@ public class GestionarVectorPalabras {
         for(int i=0; i<listaComentariosNormalizados.size(); i++){
             for(int j=0; j<listaComentariosNormalizados.elementAt(i).obtenerListaPalabrasEnComentario().size(); j++){
                 String palabra =  listaComentariosNormalizados.elementAt(i).obtenerListaPalabrasEnComentario().elementAt(j);
-                if(!palabraEstaGuardada(palabra))
+                if(!palabraEstaGuardada(palabra)){
                     vectorPalabras.addElement(palabra);
+                }
             }            
         }
         vectorPalabras.addElement("ComentarioVacio");
+        //-------------------------------
+        System.out.println("--Vector de palabras creado--");        
+        //-------------------------------        
     }
 
     //Crea un vector de frecuencias de palabras para cada uno de los comentarios de la lista de comentarios normalizados
@@ -64,6 +72,9 @@ public class GestionarVectorPalabras {
                 vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicionDeComentarioVacio();
             listaVectoresDeFrecuencias.add(vectorFrecuenciasPalabras);
         }
+        //-------------------------------
+        System.out.println("--Frecuencias generadas--");
+        //-------------------------------
     }
 
     //Verifica si la plabra ya ha sido almacenada en el vector de palabras.
