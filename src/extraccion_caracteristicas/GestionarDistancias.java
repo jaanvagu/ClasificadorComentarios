@@ -1,36 +1,32 @@
-package extraccion_caracteristicas;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Febrero 13 de 2013
+ * Ultima modificacion: Abril 27 de 2013
  */
+
+package extraccion_caracteristicas;
 
 import entrada_salida.GestionarArchivos;
 import estructuras.VectorFrecuenciasPalabras;
 import java.util.*;
 import main.Main;
+import org.apache.log4j.Logger;
 
 public class GestionarDistancias {
+    
+    private final static Logger LOG = Logger.getLogger(GestionarDistancias.class);
     
     private Vector<Double> listaDeDistanciasEntreComentarios = new Vector();
     private GestionarArchivos gestionArchivos;
 
     public void calcularDistanciaEuclideanaEntreCadaParDeComentarios(Vector<VectorFrecuenciasPalabras> vectorFrecuenciasComentarios){
         int N = vectorFrecuenciasComentarios.size();
-        gestionArchivos = new GestionarArchivos();
-        gestionArchivos.crearArchivoTexto("input_graph", Main.listaComentariosNormalizados.size());
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
-                int x = i+1;
-                int y = j+1;
                 VectorFrecuenciasPalabras vectorA = vectorFrecuenciasComentarios.elementAt(i);
                 VectorFrecuenciasPalabras vectorB = vectorFrecuenciasComentarios.elementAt(j);
-                double distancia = calcularDistanciaEuclideanaEntreDosComentarios(vectorA, vectorB);
-                //System.out.println("N"+x+"\t"+"N"+y+"\t"+distancia);
-                gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+distancia);
+                calcularDistanciaEuclideanaEntreDosComentarios(vectorA, vectorB);
             }
         }
-        gestionArchivos.cerrarArchivoTexto();
     }    
 
     public double calcularDistanciaEuclideanaEntreDosComentarios(
@@ -59,6 +55,7 @@ public class GestionarDistancias {
         double umbralDistancias = obtenerUmbralDeDistancias();
         gestionArchivos = new GestionarArchivos();
         gestionArchivos.crearArchivoTexto("input_graph",Main.listaComentariosNormalizados.size());
+        LOG.info("Calculando Distancia Euclideana Invertida entre cada par de Comentarios...");
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
                 int x = i+1;
@@ -66,7 +63,6 @@ public class GestionarDistancias {
                 VectorFrecuenciasPalabras vectorA = vectorFrecuenciasComentarios.elementAt(i);
                 VectorFrecuenciasPalabras vectorB = vectorFrecuenciasComentarios.elementAt(j);
                 double distancia = calcularDistanciaEuclideanaInvertidaEntreDosComentarios(vectorA, vectorB, umbralDistancias);
-                //System.out.println("N"+x+"\t"+"N"+y+"\t"+distancia);
                 gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+distancia);
             }
         }
@@ -77,7 +73,8 @@ public class GestionarDistancias {
     // Umbral = U;  Distancia = D
     // Distancia Invertida = U - D
     public double calcularDistanciaEuclideanaInvertidaEntreDosComentarios(
-            VectorFrecuenciasPalabras vectorFrecuenciasComentarioA, VectorFrecuenciasPalabras vectorFrecuenciasComentarioB, double umbralDistancias){
+            VectorFrecuenciasPalabras vectorFrecuenciasComentarioA, VectorFrecuenciasPalabras vectorFrecuenciasComentarioB, 
+            double umbralDistancias){
         
         double distanciaEuclideanaInvertida = 0;
         for(int i=0; i<vectorFrecuenciasComentarioA.tamanio(); i++){
@@ -90,8 +87,9 @@ public class GestionarDistancias {
         }        
         distanciaEuclideanaInvertida = Math.sqrt(distanciaEuclideanaInvertida);
         distanciaEuclideanaInvertida = umbralDistancias - distanciaEuclideanaInvertida;
-        if(distanciaEuclideanaInvertida==0 || distanciaEuclideanaInvertida==0.0)
+        if(distanciaEuclideanaInvertida==0 || distanciaEuclideanaInvertida==0.0){
             distanciaEuclideanaInvertida = 0.000000001;
+        }
         
         return distanciaEuclideanaInvertida;
     }
@@ -100,10 +98,11 @@ public class GestionarDistancias {
         
         double numeroMayor = 0.0;
         for(int i=0; i<listaDeDistanciasEntreComentarios.size(); i++){            
-            if(listaDeDistanciasEntreComentarios.elementAt(i)>numeroMayor)
+            if(listaDeDistanciasEntreComentarios.elementAt(i)>numeroMayor){
                 numeroMayor = listaDeDistanciasEntreComentarios.elementAt(i);            
+            }
         }
-        System.out.println("Umbral= "+numeroMayor);
+        LOG.info("Umbral= "+numeroMayor);
         return numeroMayor;        
     }
     
@@ -111,6 +110,8 @@ public class GestionarDistancias {
         int N = vectorFrecuenciasComentarios.size();
         gestionArchivos = new GestionarArchivos();
         gestionArchivos.crearArchivoTexto("input_graph",Main.listaComentariosNormalizados.size());
+        
+        LOG.info("Calculando Similitud Coseno entre cada par de Comentarios...");
         for(int i=0; i<(N-1); i++){
             for(int j=(i+1); j<N; j++){
                 int x = i+1;
@@ -118,18 +119,17 @@ public class GestionarDistancias {
                 VectorFrecuenciasPalabras vectorA = vectorFrecuenciasComentarios.elementAt(i);
                 VectorFrecuenciasPalabras vectorB = vectorFrecuenciasComentarios.elementAt(j);
                 double producto_A_B = productoEscalarVectorial(vectorA, vectorB);
-                if(producto_A_B==0 || producto_A_B == 0.0)
+                if(producto_A_B==0 || producto_A_B == 0.0){
                     producto_A_B = 0.01;
+                }
                 double cardinalidad_A = cardinalidadVectorial(vectorA);
                 double cardinalidad_B = cardinalidadVectorial(vectorB);
                 double similitud = (producto_A_B) / (cardinalidad_A*cardinalidad_B);                
                 gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+similitud);
-            }
+            }            
         }
-        gestionArchivos.cerrarArchivoTexto();
-        //-------------------------------
-        System.out.println("--Similitudes calculadas--");
-        //-------------------------------
+        gestionArchivos.cerrarArchivoTexto();        
+        LOG.info("Similitudes calculadas");        
     } 
     
     public double productoEscalarVectorial(VectorFrecuenciasPalabras vectorA, VectorFrecuenciasPalabras vectorB){               

@@ -1,10 +1,9 @@
-package estructuras;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Dicimebre 10 de 2012
+ * Ultima modificacion: Abril 21 de 2013
  */
 
+package estructuras;
 
 import java.io.Serializable;
 import java.util.*;
@@ -18,6 +17,11 @@ public class ComentarioNormalizado implements Serializable{
         listaPalabrasEnComentario = new Vector();
         listaPalabrasEnComentario = mensajeAListaPalabras(mensaje);
         this.etiquetas = etiquetas;
+    }
+    
+    public ComentarioNormalizado(Vector<String> listaPalabras, Vector<String> etiquetas){
+        listaPalabrasEnComentario = new Vector(listaPalabras);
+        this.etiquetas = etiquetas;        
     }
 
     //Método que a partir de el mensaje de un comentario, divide el mismo en palabras, y almacena estas últimas en la variable

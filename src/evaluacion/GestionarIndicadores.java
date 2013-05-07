@@ -1,15 +1,18 @@
-package evaluacion;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 16 de 2013
+ * Ultima modificacion: Mayo 6 de 2013
  */
 
+package evaluacion;
 
-import estructuras.Porcentaje;
+import entrada_salida.GestionarArchivos;
 import java.util.*;
+import org.apache.log4j.Logger;
+import utiles.Matematicas;
 
 public class GestionarIndicadores {
+    
+    private final static Logger LOG = Logger.getLogger(GestionarIndicadores.class);
 
     private Vector<String> listaEtiquetasCorrespondientes;
     private Vector<String> listaEtiquetasEstimadas;
@@ -46,22 +49,24 @@ public class GestionarIndicadores {
     
     public void calcularIndicadores(String algoritmo){
         if(algoritmo.equals("LP")){
+            LOG.info("Indicadores Label Propagation");
+            calcularIndicadorPrecisionParaEtiquetas();
+            calcularIndicadorRecallParaEtiquetas();
+            calcularIndicadorFScoreParaEtiquetas();
+//            imprimirResultadosObtenidos(algoritmo);
+            calcularAciertosTotales();
+        }
+        else if(algoritmo.equals("SVM")){
+            LOG.info("Indicadores SVM");
             calcularIndicadorPrecisionParaEtiquetas();
             calcularIndicadorRecallParaEtiquetas();
             calcularIndicadorFScoreParaEtiquetas();
             calcularAciertosTotales();
-            imprimirIndicadores(algoritmo);                       
-        }
-        else if(algoritmo.equals("SVM")){
-            calcularIndicadorPrecisionParaEtiquetas();
-            calcularIndicadorRecallParaEtiquetas();
-            calcularIndicadorFScoreParaEtiquetas();
-            imprimirIndicadores(algoritmo); 
         }        
     }
 
     //Cálacula el indicador "precision" para las etiquetas de una lista de comentarios. 
-    public void calcularIndicadorPrecisionParaEtiquetas(){
+    private void calcularIndicadorPrecisionParaEtiquetas(){
         double indicadorPrecisionEtiqueta_i = 0;
         etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
         while(etiDiferentes.hasMoreElements()){
@@ -81,7 +86,7 @@ public class GestionarIndicadores {
     }
 
     //Cálacula el indicador "recall" para las etiquetas de una lista de comentarios.
-    public void calcularIndicadorRecallParaEtiquetas(){
+    private void calcularIndicadorRecallParaEtiquetas(){
         double indicadorRecallEtiqueta_i = 0;
         etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
         while(etiDiferentes.hasMoreElements()){
@@ -93,20 +98,21 @@ public class GestionarIndicadores {
                 aparicionesTotalesCorrespondientes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.get(etiqueta);
                 indicadorRecallEtiqueta_i = (aparicionesCorrectas+0.0)/(aparicionesTotalesCorrespondientes+0.0);
             }
-            else
+            else{
                 indicadorRecallEtiqueta_i = 0;
+            }
             tabla_Etiqueta_indicadorRecall.put(etiqueta, indicadorRecallEtiqueta_i);
         }        
     }
 
     //Cálacula el indicador "FScore" para las etiquetas de una lista de comentarios.
-    public void calcularIndicadorFScoreParaEtiquetas(){
-        double indicadorFScoreEtiqueta_i = 0.0;
+    private void calcularIndicadorFScoreParaEtiquetas(){
+        double indicadorFScoreEtiqueta_i;
         etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
         while(etiDiferentes.hasMoreElements()){
             String etiqueta = etiDiferentes.nextElement();
-            double precision = 0.0;
-            double recall = 0.0;
+            double precision;
+            double recall;
             precision = tabla_Etiqueta_indicadorPrecision.get(etiqueta);
             recall = tabla_Etiqueta_indicadorRecall.get(etiqueta);
             if((precision+recall) != 0.0){
@@ -139,33 +145,38 @@ public class GestionarIndicadores {
                 tabla_Etiqueta_AparicionesCorrectas.put(etiquetaPropagadaLP, ++aparicionesCorrectasActual);                
             }
             
-            if(tabla_Etiqueta_AparicionesTotalesCorrespondientes.get(etiquetaCorrespondiente) == null)
+            if(tabla_Etiqueta_AparicionesTotalesCorrespondientes.get(etiquetaCorrespondiente) == null){
                 tabla_Etiqueta_AparicionesTotalesCorrespondientes.put(etiquetaCorrespondiente, 1);
+            }
             else{
                 int aparicionesTotalesCorrespondientesActual = tabla_Etiqueta_AparicionesTotalesCorrespondientes.get(etiquetaCorrespondiente);
                 tabla_Etiqueta_AparicionesTotalesCorrespondientes.put(etiquetaCorrespondiente, ++aparicionesTotalesCorrespondientesActual);
             }
         }        
     }
-
-    public void calcularAciertosTotales(){        
-        double correctas = 0;
-        for(int i=0; i<listaEtiquetasCorrespondientes.size(); i++){
-            String etiquetaCorrespondiente = listaEtiquetasCorrespondientes.elementAt(i);
-            String etiquetaPropagadaLP = listaEtiquetasEstimadas.elementAt(i);
-            if(etiquetaCorrespondiente.equals(etiquetaPropagadaLP))
-                correctas++;
+        
+    public void calcularAciertosTotales(){
+        System.out.println("\n"+GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
+        int correctas = 0, total = 0;
+        while(etiDiferentes.hasMoreElements()){
+            String etiqueta = etiDiferentes.nextElement();
+            if(tabla_Etiqueta_AparicionesCorrectas.containsKey(etiqueta)){
+                correctas += tabla_Etiqueta_AparicionesCorrectas.get(etiqueta);
+            }
+            total += tabla_Etiqueta_AparicionesTotalesCorrespondientes.get(etiqueta);
         }
-        double total = listaEtiquetasCorrespondientes.size();        
-        System.out.println("\n{"+correctas+" aciertos de "+total+"} | "+Porcentaje.obtenerPorcentaje((int)correctas,(int)total)+"% de efectividad");        
+        System.out.println("{"+correctas+" aciertos de "+total+"} | "
+                +Matematicas.calcularPorcentajeQueRepresentaCantidadRespectoTotal(correctas,total)+"% de efectividad");        
     }
     
-    public void imprimirIndicadores(String algoritmo){ 
+    public void imprimirResultadosObtenidos(String algoritmo){ 
         etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
         System.out.println("\nEtiqueta\tEstimadas por "+algoritmo+"\tCorrectas\tCorrespondientes\tPrecision\tRecall\tFScore");        
         while(etiDiferentes.hasMoreElements()){
             String tempEtiqueta = etiDiferentes.nextElement();
-            int estimada = 0, correctas = 0, correspondientes = 0;
+            String strPrecision, strRecall, strFscore;
+            int estimada = 0, correctas = 0, correspondientes;
             double precision, recall, fscore;                  
             
             if(tabla_Etiqueta_AparicionesTotalesEstimadas.containsKey(tempEtiqueta)){
@@ -178,9 +189,43 @@ public class GestionarIndicadores {
             precision = tabla_Etiqueta_indicadorPrecision.get(tempEtiqueta);
             recall = tabla_Etiqueta_indicadorRecall.get(tempEtiqueta);
             fscore = tabla_Etiqueta_indicadorFScore.get(tempEtiqueta);
+            strPrecision = (""+precision).replaceAll("\\.", ",");
+            strRecall = (""+recall).replaceAll("\\.", ",");
+            strFscore = (""+fscore).replaceAll("\\.", ",");
             
-            System.out.println(tempEtiqueta+"\t"+estimada+"\t"+correctas+"\t"+correspondientes+"\t"+precision+"\t"+recall+"\t"+fscore);
+            System.out.println(tempEtiqueta+"\t"+estimada+"\t"+correctas+"\t"+correspondientes+"\t"+strPrecision+"\t"+strRecall+"\t"+strFscore);
         }
     }
-
+    
+    public void imprimirIndicadoresParaGrafica(){ 
+        etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
+        double sumatoriaPrecision = 0.0, sumatoriaRecall = 0.0, sumatoriaFscore = 0.0;
+        System.out.println("Etiqueta\tPrecision\tRecall\tFScore");        
+        while(etiDiferentes.hasMoreElements()){
+            String tempEtiqueta = etiDiferentes.nextElement();
+            String strPrecision, strRecall, strFscore;
+            double precision, recall, fscore;                                    
+            precision = tabla_Etiqueta_indicadorPrecision.get(tempEtiqueta);
+            recall = tabla_Etiqueta_indicadorRecall.get(tempEtiqueta);
+            fscore = tabla_Etiqueta_indicadorFScore.get(tempEtiqueta);
+            sumatoriaPrecision += precision;
+            sumatoriaRecall += recall;
+            sumatoriaFscore += fscore;
+            strPrecision = ""+precision;
+            strRecall = ""+recall;
+            strFscore = ""+fscore;
+            strPrecision = strPrecision.replaceAll("\\.", ",");
+            strRecall = strRecall.replaceAll("\\.", ",");
+            strFscore = strFscore.replaceAll("\\.", ",");
+            System.out.println(tempEtiqueta+"\t"+strPrecision+"\t"+strRecall+"\t"+strFscore);
+        }
+        double promedioPrecision = sumatoriaPrecision/(tabla_Etiqueta_AparicionesTotalesCorrespondientes.size());
+        double promedioRecall = sumatoriaRecall/(tabla_Etiqueta_AparicionesTotalesCorrespondientes.size());
+        double promedioFscore = sumatoriaFscore/(tabla_Etiqueta_AparicionesTotalesCorrespondientes.size());
+        String strPromedioPrecision = (""+promedioPrecision).replaceAll("\\.", ",");
+        String strPromedioRecall = (""+promedioRecall).replaceAll("\\.", ",");
+        String strPromedioFscore = (""+promedioFscore).replaceAll("\\.", ",");
+        System.out.println("Promedio\t"+strPromedioPrecision+"\t"+strPromedioRecall+"\t"+strPromedioFscore);
+        System.out.println();
+    }
 }

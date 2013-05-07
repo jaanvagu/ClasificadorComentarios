@@ -1,34 +1,35 @@
-package preprocesamiento;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 16 de 2013
+ * Ultima modificacion: Abril 22 de 2013
  */
 
+package preprocesamiento;
 
 import estructuras.Comentario;
 import java.util.*;
 import java.util.regex.*;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
 
 public class Preprocesamiento {
-
-    boolean a = true;
-            
+    
+    private final static Logger LOG = Logger.getLogger(Preprocesamiento.class);    
+                
     private Vector<String> listaMensajesProcesados;
     
     private final String[] listaPalabrasVacias = {
-        "a","acuerdo","adelante","ademas","adrede","ahi","ahora","al","alli","alrededor", "antano","antaño","ante","antes",
+        "a","acuerdo","adelante","ademas","adrede","ahi","ahora","alla","alli","alrededor", "antano","antaño","ante","antes",
         "apenas","aproximadamente","aquel","aquella", "aquellas","aquello","aquellos","aqui","arriba","abajo","asi",
         "aun","aunque","b","bajo","bastante","bien","breve","c","casi","cerca","claro","como","con", "conmigo","contigo","contra",
         "cual","cuales","cuando","cuanta","cuantas","cuanto","cuantos","d","de","debajo","del","delante","demasiado",
         "dentro","deprisa","desde","despacio","despues","detras","dia","dias", "donde","dos","durante","e","el","ella",
         "ellas","ellos","en","encima","enfrente", "enseguida","entre","email","es","esa","esas","ese","eso","esos","esta",
         "estado","estados","estas","este","esto","estos","ex", "excepto","f","final","fue","fuera","fueron","g",
-        "general","gran","h","ha","habia","habla", "hablan","hace","hacia","han","hasta","hay","horas","hoy","i","incluso","informo",
+        "general","gran","h","ha","habia","habla", "hablan","hace","hacia","han","hasta","hay","hola","horas","hoy","i","incluso","informo",
         "j","junto", "k","l","la","lado","las","le","lejos","lo","los","luego","m","mal","mail","mas","mayor","me","medio", "mejor","menos",
         "menudo","mi","mia","mias","mientras","mio","mios","mis", "mismo","mucho","muy","n","nada","nadie","ninguna","no",
         "nos","nosotras","nosotros","nuestra","nuestras", "nuestro","nuestros","nueva","nuevo","nunca","ñ","o","os","otra","otros","p",
-        "pais","para","parte", "pasado","peor","pero","poco","por","porque","pronto","proximo","puede","q","qeu","que", "quien",
+        "pais","para","parte", "pasado","peor","pero","poco","por","porque","pronto","proximo","puede","pues","q","qeu","que", "quien",
         "quienes","quiza","quizas","r","raras","repente","s","salvo", "se","segun","ser","sera","si","sido","siempre",
         "sin","sobre","solamente", "solo","son","soyos","su","supuesto","sus","suya","suyas","suyo","t","tal","tambien", "tampoco",
         "tarde","te","temprano","ti","tiene","todavia","todo","todos","tras","tu", "tus","tuya","tuyas","tuyo","tuyos","u","un","una",
@@ -40,13 +41,15 @@ public class Preprocesamiento {
 
     private final String[] listaPatronesOnomatopeyas = {
         "[ja]{2,}", "[je]{2,}", "[ji]{2,}", "[ha]{2,}", "[he]{2,}", "[hi]{2,}", "[wo]{2,}", "[oh]{2,}", "[ah]{2,}", "[o]{2,}",
-        "[a]{2,}", "[e]{2,}", "[u]{2,}", "[i]{2,}", "[m]{2,}"
-    };
+        "[a]{2,}", "[e]{2,}", "[u]{2,}", "[i]{2,}", "[m]{2,}", "[uf]{2,}", "[uy]{2,}", "[bu]{2,}", "[ura]{3,}", "[mucho]{5,}", "[hola]{4,}"
+        //Añadir "[ke]{2,}"
+    }; 
 
     //Constructor que recibe una lista de comentarios, obtiene los mensajes de
     //cada uno de ellos, se los asigna a la variable de clase listaMensajesParaProcesar y finalemente ejecuta
     //algunas funciones de limpieza de datos sobre dicha lista.
-    public Preprocesamiento(Vector<Comentario> listaComentarios){        
+    public Preprocesamiento(Vector<Comentario> listaComentarios){   
+        PropertyConfigurator.configure("log4j.properties");
         listaMensajesProcesados = new Vector();   
         for(int i=0; i<listaComentarios.size(); i++){
             String mensajeDeComentario = listaComentarios.elementAt(i).obtenerMensaje();                                    
@@ -54,7 +57,7 @@ public class Preprocesamiento {
         }
 
         ejecutarPreprocesamientoSecuencial();
-        System.out.println("--Preprocesamiento Realizado--");
+        LOG.info("Preprocesamiento Realizado");
     }
 
     private void ejecutarPreprocesamientoSecuencial(){        
@@ -79,16 +82,19 @@ public class Preprocesamiento {
                 String palabra = tokensMensajeParaProcesar.nextToken();
                 
                 if(tipo.equals("eliminarRuidoRedesSociales")){
-                    if(!esRuidoTuiter(palabra))
+                    if(!esRuidoTuiter(palabra)){
                         mensajePreProcesado.append(palabra).append(" ");
+                    }
                 }
                 else if (tipo.equals("eliminarURLs")){
-                    if(!esURL(palabra))
+                    if(!esURL(palabra)){
                         mensajePreProcesado.append(palabra).append(" ");
+                    }
                 }
                 else if (tipo.equals("eliminarOnomatopeyas")){
-                    if(!esOnomatopeya(palabra))
+                    if(!esOnomatopeya(palabra)){
                         mensajePreProcesado.append(palabra).append(" ");
+                    }
                 }                                
                 else if (tipo.equals("convertirAMinusculas")) {
                     mensajePreProcesado.append(convertirAMinusculas(palabra)).append(" ");
@@ -100,8 +106,9 @@ public class Preprocesamiento {
                     mensajePreProcesado.append(eliminarCaracteresDiferentesALetras(palabra)).append(" ");
                 }
                 else if (tipo.equals("eliminarPalabrasVacias")){
-                    if(!esPalabraVacia(palabra))
+                    if(!esPalabraVacia(palabra)){
                         mensajePreProcesado.append(palabra).append(" ");
+                    }
                 }
                 else if (tipo.equals("eliminarEspaciosEnBlancoAdicionales")){                                                            
                     if((tokensMensajeParaProcesar.countTokens())!=0){
@@ -112,7 +119,7 @@ public class Preprocesamiento {
                     }                                        
                 }
                 else{
-                    System.out.println("Tipo mal escrito");
+                    LOG.error("Tipo de preprocesamiento mal escrito");
                 }
 
                 contador++;
@@ -124,8 +131,9 @@ public class Preprocesamiento {
     //Identidica si una palabra contiene ruido generado por la red social tuiter.
     private boolean esRuidoTuiter(String palabra){
         for(int i=0; i<listaInicialesRedesSociales.length; i++){
-            if(palabra.startsWith(listaInicialesRedesSociales[i]))
+            if(palabra.startsWith(listaInicialesRedesSociales[i])){
                 return true;
+            }
         }
         return false;
     }
@@ -136,15 +144,18 @@ public class Preprocesamiento {
         recorteTresCaracteres = "#";
         recorteDosCaracteres = "#";
         if(palabra.length()>=4){
-            if(palabra.length()>=5)
-                recorteTresCaracteres = palabra.substring(palabra.length()-4,palabra.length()-3);                       
+            if(palabra.length()>=5){
+                recorteTresCaracteres = palabra.substring(palabra.length()-4,palabra.length()-3);    
+            }
             recorteDosCaracteres = palabra.substring(palabra.length()-3,palabra.length()-2);
         }       
 
-        if(palabra.startsWith("http") || palabra.startsWith("www") || recorteDosCaracteres.equals(".") || recorteTresCaracteres.equals("."))
+        if(palabra.startsWith("http") || palabra.startsWith("www") || recorteDosCaracteres.equals(".") || recorteTresCaracteres.equals(".")){
             return true;
-        else
+        }
+        else{
             return false;
+        }
     }
 
     //Identifica si una palabra es onomatopeya
@@ -152,8 +163,9 @@ public class Preprocesamiento {
         for(int i=0; i<listaPatronesOnomatopeyas.length; i++){
             Pattern patron = Pattern.compile(listaPatronesOnomatopeyas[i]);
             Matcher verificador = patron.matcher(palabra);
-            if(verificador.matches())
-                return true;            
+            if(verificador.matches()){
+                return true;        
+            }
         }
         return false;
     }    
@@ -163,8 +175,9 @@ public class Preprocesamiento {
         return mensaje.toLowerCase();
     }
     
-    //Elimina los acentos o tildes que encuentre en una palabra.
-    private String quitarAcentos(String palabra) {
+    //Elimina los acentos o tildes que encuentre en una palabra. Es estático para permitir su uso en la clase Lematizar. Y en clase
+    //DiccionarioEspanolIngles.
+    public static String quitarAcentos(String palabra) {
         palabra = palabra.replaceAll("á","a");
         palabra = palabra.replaceAll("é","e");
         palabra = palabra.replaceAll("í","i");
@@ -181,8 +194,9 @@ public class Preprocesamiento {
     //Identifica si una palabra es "Palabra Vacia" (Las palabras vacias estan definidas en una lista, que es un atributo de clase).
     private boolean esPalabraVacia(String palabra){
         for(int i=0; i<listaPalabrasVacias.length; i++){
-            if(palabra.equals(listaPalabrasVacias[i]))
+            if(palabra.equals(listaPalabrasVacias[i])){
                 return true;
+            }
         }
         return false;
     }

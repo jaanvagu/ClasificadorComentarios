@@ -1,10 +1,9 @@
-package estructuras;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Diciembre 10 de 2012
+ * Ultima modificacion: Abril 25 de 2013
  */
 
+package estructuras;
 
 import java.util.*;
 
@@ -14,13 +13,14 @@ public class VectorFrecuenciasPalabras {
 
     public VectorFrecuenciasPalabras(int tamanioVectorPalabras){
         vectorFrecuenciasPalabras = new Vector(tamanioVectorPalabras);
-        for(int i=0; i<tamanioVectorPalabras; i++)
+        for(int i=0; i<tamanioVectorPalabras; i++){
             vectorFrecuenciasPalabras.addElement(0);        
+        }
     }
 
-    public void aumentarFrecuenciaEnPosicion(int posicion){
+    public void aumentarFrecuenciaEnPosicion(int posicion, int cantidad){
         int frecuenciaActual = vectorFrecuenciasPalabras.elementAt(posicion);        
-        int frecuenciaNueva = ++frecuenciaActual;        
+        int frecuenciaNueva = frecuenciaActual + cantidad;
         vectorFrecuenciasPalabras.setElementAt(frecuenciaNueva, posicion);
     }
 

@@ -1,19 +1,20 @@
-package SVM;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 17 de 2013
+ * Ultima modificacion: Mayo 1 de 2013
  */
 
+package svm;
 
-import estructuras.VectorFrecuenciasPalabras;
-import estructuras.Porcentaje;
 import estructuras.ComentarioNormalizado;
+import estructuras.VectorFrecuenciasPalabras;
 import java.util.*;
 import libsvm.*;
-
+import org.apache.log4j.Logger;
+import utiles.Matematicas;
 
 public class SVM {
+    
+    private final static Logger LOG = Logger.getLogger(SVM.class);
     
     private Vector<ComentarioNormalizado> listaComentarios;
     private Vector<VectorFrecuenciasPalabras> listaVectoresFrecuencias; //Lista de todas las caracteristicas.    
@@ -58,6 +59,7 @@ public class SVM {
         definirParametros();
     }
     
+    //Variables con las que opera SVM.
     private void definirParametros(){
         param.svm_type = svm_parameter.C_SVC;
         param.kernel_type = svm_parameter.LINEAR; 
@@ -70,15 +72,19 @@ public class SVM {
         param.probability = 1;        
     } 
     
+    //Método que crea una tabla de relación entre el indice {0,1,2,...n} de cada uno de los comentarios de la lista
+    //original, y su etiqueta correspondiente. Ejemplo: Tabla: { [0, E1], [1,E2], ... [n, En]  }.
     private void mapearTablaIndice_Etiqueta(){
         for(int i=0; i<listaComentarios.size(); i++){
             String tempEtiqueta = listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0);
             tablaCorrespondenciaIndice_Etiqueta.put(i, tempEtiqueta);
         }
     }
-           
+    
+    //Método que genera una tabla de relación entre indices y sus vectores de frecuencia.
+    //Los indices incluidos son sólo aquellos que se pasarán como entrenamiento para el algoritmo SVM.
     private void generarTablaCaracteristicasEntrenamiento(int porcentaje){
-        int porcentajeSemillas = Porcentaje.calcularNumero(listaComentarios.size(),porcentaje);
+        int porcentajeSemillas = Matematicas.calcularCantidadAPartirDePorcentajeQueRepresentaDeTotal(listaComentarios.size(),porcentaje);
         generarFrecuenciasEtiquetasTotales();
         llenarTablaCantMaximaPorEtiqueta(porcentaje);
         
@@ -89,7 +95,7 @@ public class SVM {
             if(i>=listaComentarios.size()){
                 i = 0;
                 aumentoGradualSemillasPorEtiqueta++;
-                System.out.println("    Aumento gradual entrenamiento: "+aumentoGradualSemillasPorEtiqueta);
+                LOG.debug(" Aumento gradual entrenamiento: "+aumentoGradualSemillasPorEtiqueta);
             }            
             String etiqueta = listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0);
             if(contarAparicionEtiqueta(etiqueta) < (tablaCantMaximaPorEtiqueta.get(etiqueta) + aumentoGradualSemillasPorEtiqueta) &&
@@ -104,6 +110,8 @@ public class SVM {
         }         
     }
     
+    //Método que genera una tabla de relación entre indices y sus vectores de frecuencia.
+    //Incluye todos aquellos indices que no fueron escogidos para entrenamiento.
     private void generarTablaCaracteristicasPrueba(){
         for(int i=0; i<listaComentarios.size(); i++){
             if(!listaPosicionesEtiquetasEntrenamiento.contains(i)){
@@ -115,8 +123,9 @@ public class SVM {
     private int contarAparicionEtiqueta(String eti){
         int apariciones = 0;
         for(int i=0; i<listaEtiquetasUsadasEnEntrenamiento.size(); i++){
-            if(eti.equals(listaEtiquetasUsadasEnEntrenamiento.elementAt(i)))
+            if(eti.equals(listaEtiquetasUsadasEnEntrenamiento.elementAt(i))){
                 apariciones++;
+            }
         }
         return apariciones;
     }
@@ -140,11 +149,12 @@ public class SVM {
     
     private void llenarTablaCantMaximaPorEtiqueta(int porcentajePorEtiqueta){        
         for(int i=0; i<listaDeEtiquetasTotales.size(); i++){            
-            int cantPorEtiqueta = Porcentaje.calcularNumero(tablaFrecuenciasEtiquetasTotales.get(listaDeEtiquetasTotales.get(i)),porcentajePorEtiqueta);            
+            int cantPorEtiqueta = Matematicas.calcularCantidadAPartirDePorcentajeQueRepresentaDeTotal(tablaFrecuenciasEtiquetasTotales.get(listaDeEtiquetasTotales.get(i)),porcentajePorEtiqueta);            
             tablaCantMaximaPorEtiqueta.put(listaDeEtiquetasTotales.get(i), cantPorEtiqueta);
         }        
     }
     
+    //Método que identifica cuántas posiciones de un vector de características no están vacías.
     private int obtenerCantPoscionesDiferentesCero(VectorFrecuenciasPalabras vectorFC){
         int cantPosiciones = 0;
         for(int i=0; i<vectorFC.tamanio(); i++){
@@ -217,6 +227,10 @@ public class SVM {
     }
     
     public void ejecutarSVM(int porcentajeSemillasEntrenamiento){
+        LOG.info("Ejecutando SVM");
+        svm_print_interface printInterface = new svm_print_interface(){public void print(String string) {}}; 
+        svm.svm_set_print_string_function(printInterface); //No imprimir nada mientras se ejecuta.
+        
         generarTablaCaracteristicasEntrenamiento(porcentajeSemillasEntrenamiento);
         generarTablaCaracteristicasPrueba();
                 
@@ -229,8 +243,7 @@ public class SVM {
     }
     
     private void ejecutarSVMparaEtiqueta(String etiqueta){
-        svm_problem problema = generarProblemaEntrenamientoParaEtiqueta(etiqueta);   
-        System.out.println("**********************Eti: "+etiqueta);
+        svm_problem problema = generarProblemaEntrenamientoParaEtiqueta(etiqueta);               
         svm_model modelo = svm.svm_train(problema,param);
                         
         for(int i=0; i<listaNodosParaProbar.size(); i++){

@@ -1,17 +1,20 @@
-package utiles;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 16 de 2013
+ * Ultima modificacion: Mayo 4 de 2013
  */
 
+package utiles;
 
 import entrada_salida.GestionarArchivos;
-import estructuras.Porcentaje;
 import estructuras.ComentarioNormalizado;
+import extraccion_caracteristicas.GestionarVectorPalabras;
 import java.util.*;
+import org.apache.log4j.Logger;
+import preprocesamiento.Preprocesamiento;
 
 public class DistribuirDatos {
+    
+    private final static Logger LOG = Logger.getLogger(DistribuirDatos.class);
      
     private Vector<ComentarioNormalizado> listaComentarios;
     private Vector<ComentarioNormalizado> nuevosComentariosDistribuidos;
@@ -25,8 +28,7 @@ public class DistribuirDatos {
     
     private int comentarioUtiles;
         
-    public DistribuirDatos(Vector<ComentarioNormalizado> listaComentarios) {
-        
+    public DistribuirDatos(Vector<ComentarioNormalizado> listaComentarios) {        
         this.listaComentarios = new Vector(listaComentarios);
         nuevosComentariosDistribuidos = new Vector();
         listaComentariosTodosDiferentes = new Vector();
@@ -35,46 +37,160 @@ public class DistribuirDatos {
         tablaFrecuenciasEtiquetasTotales = new Hashtable<String, Integer>();                
         tablaFrecuenciasEtiquetasUtiles = new Hashtable<String, Integer>();   
     }
-        
-    public Vector<ComentarioNormalizado> generarDistribucionNDatos(int N){
+
+    //Método que distribuye proporcionalmente una cantidad determinada de comentarios, respecto al número total.
+    //Ejemplo: si se tienen 2000 comentarios y se requiere trabajar con tan solo 200, se calcula cuántas
+    //veces debe aparecer una etiqueta de acuerdo a sus apariciones totales.
+    public Vector<ComentarioNormalizado> generarDistribucionProporcionalNDatos(int N){
         Hashtable<String,Integer> tablaCantMaximaPorEtiqueta = new Hashtable();
-        generarFrecuenciasEtiquetasTotales();         
+        generarFrecuenciasEtiquetasTotales();
         
-        int porcentajeDelTotal = Porcentaje.obtenerPorcentaje(N, listaComentarios.size());        
-        tablaCantMaximaPorEtiqueta = llenarTablaCantMaximaPorEtiqueta(porcentajeDelTotal);    
+        int porcentajeDelTotal = Matematicas.calcularPorcentajeQueRepresentaCantidadRespectoTotal(N, listaComentarios.size());
+        tablaCantMaximaPorEtiqueta = llenarTablaCantMaximaPorEtiqueta(porcentajeDelTotal);
         
         int aumentoGradualCantEtiquetas = 0;
         int comentariosIncluidos = 0;
-        int i = 0;        
+        int i = 0;
         
-        while(comentariosIncluidos<N){            
-            if(i>=listaComentarios.size()){                
+        
+        while(comentariosIncluidos<N){
+            if(i>=listaComentarios.size()){
                 i = 0;
                 aumentoGradualCantEtiquetas++;
-                System.out.println("Aumento gradual: "+aumentoGradualCantEtiquetas);
-            }            
-            String etiqueta = listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0).toLowerCase();            
-            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);                                        
-            
+                LOG.debug(" Aumento gradual: "+aumentoGradualCantEtiquetas);
+            }
+            String etiqueta = listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0).toLowerCase();
+            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);
+
             if( (contarAparicionEtiqueta(etiqueta) < (tablaCantMaximaPorEtiqueta.get(etiqueta) + aumentoGradualCantEtiquetas)) &&
                     (!existeComentarioEnVector(tempComentario,nuevosComentariosDistribuidos))
                     ){
-                nuevosComentariosDistribuidos.addElement(tempComentario);  
+                nuevosComentariosDistribuidos.addElement(tempComentario);
                 comentariosIncluidos++;
-            }                                                                                                                                        
-            i++;            
-        }        
-        guardarListaNuevosComentarios("Distribuidos "+N);
-        System.out.println(nuevosComentariosDistribuidos.size());
+            }
+            i++;
+        }
+        guardarListaNuevosComentarios("DistribuidosProporcional "+N);
+        LOG.info("Distribucion proporcional finalizada. N="+nuevosComentariosDistribuidos.size());
         generarFrecuenciasEtiquetasUtiles(nuevosComentariosDistribuidos);
+        listaComentarios = new Vector(nuevosComentariosDistribuidos);
         return nuevosComentariosDistribuidos;
     }
+    
+    //Método que distribuye uniformemente los comentarios de un paquete de acuerdo a un N. 
+    //Se encarga de asignar la misma cantidad de apariciones por cada una de las etiquetas, es decir,
+    //si se tiene que N=100 y 10 etiquetas contiene el paquete en total, cada una de ellas aparecerá 10 veces.
+    public Vector<ComentarioNormalizado> generarDistribucionUniformeNDatos(int N){
+        LOG.info("Distribuyendo datos");
+        generarFrecuenciasEtiquetasTotales();
+
+        double dN = N+0.0;
+        double cantEtiquetas = tablaFrecuenciasEtiquetasTotales.size()+0.0;
+        double dCantMax = dN/cantEtiquetas;
+        int cantMaximaPorEtiqueta = Matematicas.aproximarAEntero(dCantMax);
+        LOG.debug("Cant max por etiqueta: "+cantMaximaPorEtiqueta);
+        
+        int aumentoGradualCantEtiquetas = 0;
+        int comentariosIncluidos = 0;
+        int i = 0;
+        
+        while(comentariosIncluidos<N){
+            if(i>=listaComentarios.size()){
+                i = 0;
+                aumentoGradualCantEtiquetas++;
+                LOG.debug(" Aumento gradual: "+aumentoGradualCantEtiquetas);
+            }
+            String etiqueta = listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0).toLowerCase();
+            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);
             
+            if( (contarAparicionEtiqueta(etiqueta) < (cantMaximaPorEtiqueta + aumentoGradualCantEtiquetas)) &&
+                    (!existeComentarioEnVector(tempComentario,nuevosComentariosDistribuidos))
+                    ){
+                nuevosComentariosDistribuidos.addElement(tempComentario);
+                comentariosIncluidos++;
+            }
+            i++;
+        }
+        guardarListaNuevosComentarios("DistribuidosUniforme "+N);
+        LOG.info("Distribucion uniforme finalizada. N="+nuevosComentariosDistribuidos.size());
+        generarFrecuenciasEtiquetasUtiles(nuevosComentariosDistribuidos);
+        listaComentarios = new Vector(nuevosComentariosDistribuidos);
+        return nuevosComentariosDistribuidos;
+    }
+    
+    //Método que distribuye uniformemente los comentarios de un paquete de acuerdo a un N y a una cantidad definida de etiquetas.
+    //Se encarga de incluir sólo la cantidad de etiquetas especificada y las distribuye uniformemente, por ejemplo:
+    //Si N=100 y cantEtiquetas=5, entonces por cada etiqueta habrán 20 comentarios.
+    //Además, si un paquete tiene 10 etiquetas en total, y cantEtiquetas=5, incluye las 5 con mayor frecuencia.
+    public Vector<ComentarioNormalizado> generarDistribucionUniformeNDatos(int N, int cantEtiquetas){
+        LOG.info("Distribuyendo datos");
+        generarFrecuenciasEtiquetasTotales();
+        ArrayList<Integer> frecuenciasEtiquetasOrdenadas = new ArrayList(tablaFrecuenciasEtiquetasTotales.values());
+        Collections.sort(frecuenciasEtiquetasOrdenadas); //Lista de las frecuencias de las etiquetas ordenada ascendentemente para tomar
+                                                        //las de mayor frecuencia.
+
+        double dN = N+0.0;
+        double dCantMax = dN/cantEtiquetas;
+        int cantMaximaPorEtiqueta = Matematicas.aproximarAEntero(dCantMax);
+        LOG.debug("Cant max por etiqueta: "+cantMaximaPorEtiqueta);
+        
+        int aumentoGradualCantEtiquetas = 0;
+        int comentariosIncluidos = 0;
+        int i = 0;
+        
+        ArrayList<String> etiquetasDiferentesIncluidas = new ArrayList<String>();
+        
+        while(comentariosIncluidos<N){
+            if(i>=listaComentarios.size()){
+                i = 0;
+                aumentoGradualCantEtiquetas++;
+                LOG.debug(" Aumento gradual: "+aumentoGradualCantEtiquetas);
+            }
+            String etiqueta = listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0).toLowerCase();
+            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);
+            
+            if( (contarAparicionEtiqueta(etiqueta) < (cantMaximaPorEtiqueta + aumentoGradualCantEtiquetas)) &&
+                    (!existeComentarioEnVector(tempComentario,nuevosComentariosDistribuidos))
+                    ){
+                if(etiquetasDiferentesIncluidas.size() == cantEtiquetas){
+                    if(etiquetasDiferentesIncluidas.contains(etiqueta)){
+                        nuevosComentariosDistribuidos.addElement(tempComentario);
+                        comentariosIncluidos++;
+                    }
+                }
+                else{
+                    if(frecuenciasEtiquetasOrdenadas.size() > cantEtiquetas){
+                        int frecuenciaEtiqueta = tablaFrecuenciasEtiquetasTotales.get(etiqueta);
+                        int posFrecuenciaListaOrdenada = frecuenciasEtiquetasOrdenadas.indexOf(frecuenciaEtiqueta);
+                        int posMinima = frecuenciasEtiquetasOrdenadas.size()-cantEtiquetas;
+                        if(posFrecuenciaListaOrdenada >= (posMinima)){
+                            nuevosComentariosDistribuidos.addElement(tempComentario);
+                            comentariosIncluidos++;
+                            if(!(etiquetasDiferentesIncluidas.contains(etiqueta))){
+                                etiquetasDiferentesIncluidas.add(etiqueta);
+                            }
+                        }
+                    }
+                    else{
+                        nuevosComentariosDistribuidos.addElement(tempComentario);
+                        comentariosIncluidos++;
+                    }
+                }
+            }
+            i++;
+        }
+        guardarListaNuevosComentarios("DistribuidosUniformeCanDefi "+N);
+        LOG.info("Distribucion uniforme finalizada. N="+nuevosComentariosDistribuidos.size());
+        generarFrecuenciasEtiquetasUtiles(nuevosComentariosDistribuidos);
+        listaComentarios = new Vector(nuevosComentariosDistribuidos);
+        return nuevosComentariosDistribuidos;
+    }
     
     private Hashtable<String,Integer> llenarTablaCantMaximaPorEtiqueta(int porcentajePorEtiqueta){
         Hashtable<String,Integer> tablaHash = new Hashtable<String,Integer>();
         for(int i=0; i<listaDeEtiquetasTotales.size(); i++){            
-            int cantPorEtiqueta = Porcentaje.calcularNumero(tablaFrecuenciasEtiquetasTotales.get(listaDeEtiquetasTotales.get(i)),porcentajePorEtiqueta);            
+            int cantPorEtiqueta = Matematicas.calcularCantidadAPartirDePorcentajeQueRepresentaDeTotal(
+                    tablaFrecuenciasEtiquetasTotales.get(listaDeEtiquetasTotales.get(i)),porcentajePorEtiqueta);            
             tablaHash.put(listaDeEtiquetasTotales.get(i), cantPorEtiqueta);
         }
         return tablaHash;
@@ -120,11 +236,7 @@ public class DistribuirDatos {
                     tablaFrecuenciasEtiquetasTotales.put(tempEtiqueta, ++frecuenciaActual);                    
                 }                                                                                
             }
-        }
-//        for(int i=0; i<listaDeEtiquetasTotales.size(); i++){            
-//            System.out.println(listaDeEtiquetasTotales.get(i)+"\t"+tablaFrecuenciasEtiquetasTotales.get(listaDeEtiquetasTotales.get(i)));
-//        }        
-//        System.out.println("\n");
+        }       
     }
     
     private void generarFrecuenciasEtiquetasUtiles(Vector<ComentarioNormalizado> listaOrigen){
@@ -146,40 +258,115 @@ public class DistribuirDatos {
                 }
                 else{
                     int frecuenciaActual = tablaFrecuenciasEtiquetasUtiles.get(tempEtiqueta);
-                    tablaFrecuenciasEtiquetasUtiles.put(tempEtiqueta, ++frecuenciaActual); 
+                    tablaFrecuenciasEtiquetasUtiles.put(tempEtiqueta, ++frecuenciaActual);
                     listaComentariosTodosDiferentes.add(tempComentario);
                 }                                
             }                      
         }        
-        for(int i=0; i<listaDeEtiquetasIncluidasEnNuevosComentarios.size(); i++){            
-            System.out.println(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)+"\t"+tablaFrecuenciasEtiquetasUtiles.get(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)));            
+        for(int i=0; i<listaDeEtiquetasIncluidasEnNuevosComentarios.size(); i++){
+            LOG.debug("> "+listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)+"\t"+tablaFrecuenciasEtiquetasUtiles.get(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)));
         }        
     }        
     
-    public void generarListaSoloComentarioUtiles(){                               
-        generarFrecuenciasEtiquetasUtiles(listaComentarios);        
+    public void generarListaSoloComentarioUtiles(){
+        generarFrecuenciasEtiquetasUtiles(listaComentarios);
         
-        for(int i=0; i<listaComentarios.size(); i++){           
-            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);            
+        for(int i=0; i<listaComentarios.size(); i++){
+            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);
             if( !(tempComentario.obtenerEtiquetas().isEmpty()) &&
-                    !(tempComentario.obtenerListaPalabrasEnComentario().isEmpty()) &&                    
-                    !(existeComentarioEnVector(tempComentario,nuevosComentariosDistribuidos))                    
+                    !(tempComentario.obtenerListaPalabrasEnComentario().isEmpty()) &&
+                    !(existeComentarioEnVector(tempComentario,nuevosComentariosDistribuidos))
                     ){
                 String tempEtiqueta = tempComentario.obtenerEtiquetas().elementAt(0).toLowerCase();
-                if((tablaFrecuenciasEtiquetasUtiles.get(tempEtiqueta)) >= 35){                    
+                if((tablaFrecuenciasEtiquetasUtiles.get(tempEtiqueta)) >= 35){
                     nuevosComentariosDistribuidos.addElement(tempComentario);
                     if(!listaDeEtiquetasIncluidasEnNuevosComentarios.contains(tempEtiqueta)){
-                        listaDeEtiquetasIncluidasEnNuevosComentarios.add(tempEtiqueta);                        
+                        listaDeEtiquetasIncluidasEnNuevosComentarios.add(tempEtiqueta);
                     }
-                }                
-            }                                     
+                }
+            }
         }
         comentarioUtiles = nuevosComentariosDistribuidos.size();
         guardarListaNuevosComentarios("Utiles Normalizados");
-        //-------------------------------
-        System.out.println("\nTamaño= "+listaComentarios.size());
-        System.out.println("Utiles= "+comentarioUtiles+"\n");  
+        LOG.debug("Tamaño Consolidado= "+listaComentarios.size());
+        LOG.debug("Utiles= "+comentarioUtiles+"\n");
         generarFrecuenciasEtiquetasUtiles(nuevosComentariosDistribuidos);
-        //-------------------------------
-    }        
+    }
+    
+    public Vector<ComentarioNormalizado> eliminarComentariosConPalabrasRepetidasEnExceso(){
+        GestionarVectorPalabras gVectorPalabras = new GestionarVectorPalabras(listaComentarios);
+        gVectorPalabras.contruirVectorDePalabras();
+        gVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
+        ArrayList<Integer> posicionesAEliminar = new ArrayList<Integer>();
+        for(int i=0; i<listaComentarios.size(); i++){
+            int fre = Collections.max(gVectorPalabras.obtenerListaVectoresDeFrecuencias().elementAt(i).obtenerVectorFrecuenciasPalabras());
+            if(fre>8){
+                posicionesAEliminar.add(i);
+            }
+        }
+        for(int i=0; i<posicionesAEliminar.size(); i++){
+            int posAEliminar = (posicionesAEliminar.get(i) - i);
+            listaComentarios.remove(posAEliminar);
+        }
+        GestionarArchivos ga = new GestionarArchivos();
+        ga.guardarComentariosNormalizados(listaComentarios, "Utiles Normalizados");
+        return listaComentarios;
+    }
+    
+    //Genera una nueva lista de comentarios a partir de una dada, quitando de la original los que contengan etiquetas de baja precisión.
+    //Etiquetas que no corresponden a categorías defininas.
+    public Vector<ComentarioNormalizado> eliminarComentariosConEtiquetasMalas(){
+        LOG.debug("Cant Original: "+listaComentarios.size());
+        ArrayList<String> etiquetasMalas = new ArrayList<String>();
+        if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Balance")){
+            etiquetasMalas.add("seguridad");
+            etiquetasMalas.add("composicion");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Coca_Cola")){
+            etiquetasMalas.add("organico");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Dog_Chow")){
+            etiquetasMalas.add("presentaciones");
+            etiquetasMalas.add("desarrollo");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Don_Julio")){
+            etiquetasMalas.add("comunidad");
+            etiquetasMalas.add("organico");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Kotex")){
+            etiquetasMalas.add("mensajes de campaña");
+            etiquetasMalas.add("presentaciones");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Nike")){
+            etiquetasMalas.add("generico");
+            etiquetasMalas.add("resistencia");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Sony")){
+            etiquetasMalas.add("producto");
+            etiquetasMalas.add("conectividad");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+        else if(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios().equals("Top_Terra")){
+            etiquetasMalas.add("precio");
+            System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
+        }
+
+        for(int i=0; i<listaComentarios.size(); i++){
+            String etiqueta = Preprocesamiento.quitarAcentos(listaComentarios.elementAt(i).obtenerEtiquetas().elementAt(0).toLowerCase());
+            if(!etiquetasMalas.contains(etiqueta)){
+                nuevosComentariosDistribuidos.addElement(listaComentarios.elementAt(i));
+                System.out.print(etiqueta+", ");
+            }
+        }
+        System.out.println();
+        LOG.debug("Cant Nueva   : "+nuevosComentariosDistribuidos.size());
+        guardarListaNuevosComentarios("Utiles SinEtiquetasMalas");
+        return nuevosComentariosDistribuidos;
+    }
 }

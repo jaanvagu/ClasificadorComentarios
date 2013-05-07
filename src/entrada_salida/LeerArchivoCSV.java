@@ -1,17 +1,18 @@
-package entrada_salida;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 16 de 2013
+ * Ultima modificacion: Abril 30 de 2013
  */
 
+package entrada_salida;
 
-import entrada_salida.GestionarArchivos;
-import estructuras.Comentario;
 import com.csvreader.CsvReader;
+import estructuras.Comentario;
 import java.util.Vector;
+import org.apache.log4j.Logger;
 
 public class LeerArchivoCSV {
+    
+    private final static Logger LOG = Logger.getLogger(LeerArchivoCSV.class);
 
     private CsvReader lectorArchivosCSV;
     private String rutaArchivo;
@@ -26,7 +27,7 @@ public class LeerArchivoCSV {
     //Método que utiliza la clase GestionArchivos para obtener el texto contenido en un CSV.
     private boolean cargarCSV(){
         gestionArchivos = new GestionarArchivos();
-        rutaArchivo = gestionArchivos.obtenerRutaArchivo("csv");
+        rutaArchivo = gestionArchivos.obtenerRutaArchivoCSV("csv");
         if(!rutaArchivo.equals("vacia")){
             //Se convierte a UTF-8 para corregir errores como por ejemplo que la palabra "cómo" se muestra así: "cÃ³mo"
             lectorArchivosCSV = new CsvReader(gestionArchivos.convertirAFormatoUTF8(rutaArchivo));
@@ -47,10 +48,10 @@ public class LeerArchivoCSV {
                 while (lectorArchivosCSV.readRecord()){                       
                     Comentario comentarioLeido = convertirFilaLeidaAComentario(indices);
                     listaComentariosLeidos.addElement(comentarioLeido);
-                    //System.out.println(comentarioLeido.aString());
+                    LOG.debug(comentarioLeido.aString());
                 }                
             }catch(Exception e){
-                System.out.println("Error en leerYAlmacenarLineasCSV: "+e.getMessage());
+                LOG.error("Error en leerYAlmacenarLineasCSV: "+e.getMessage());
             }
         }        
     }
@@ -71,7 +72,7 @@ public class LeerArchivoCSV {
             return this.encabezadoArchivoCSV;
         }
         catch (Exception e){
-            System.out.println("Error en obtenerEncabezadoCSV: "+e.getMessage());
+            LOG.error("Error en obtenerEncabezadoCSV: "+e.getMessage());
             return null;
         }
     }
@@ -131,7 +132,7 @@ public class LeerArchivoCSV {
             comentarioLeido = new Comentario(autor, mensaje, fuente, etiquetasLeidasPorFila);            
         }
         catch(Exception e){
-            System.out.println("Error en convertirFilaLeidaAComentario: "+e.getMessage());
+            LOG.error("Error en convertirFilaLeidaAComentario: "+e.getMessage());
             return null;
         }
         return comentarioLeido;

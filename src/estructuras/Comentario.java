@@ -1,10 +1,9 @@
-package estructuras;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Septiembre 30 de 2012
+ * Ultima modificacion: Abril 18 de 2013
  */
 
+package estructuras;
 
 import java.util.Vector;
 

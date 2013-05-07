@@ -1,36 +1,30 @@
-package extraccion_caracteristicas;
-
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 16 de 2013
+ * Ultima modificacion: Mayo 6 de 2013
  */
+
+package extraccion_caracteristicas;
 
 import estructuras.ComentarioNormalizado;
 import estructuras.VectorFrecuenciasPalabras;
 import java.util.*;
-import main.Main;
+import org.apache.log4j.Logger;
+import utiles.Matematicas;
 
 public class GestionarVectorPalabras {
+    
+    private final static Logger LOG = Logger.getLogger(GestionarVectorPalabras.class);
 
-    private Vector<ComentarioNormalizado> listaComentariosNormalizados;    
+    private Vector<ComentarioNormalizado> listaComentariosNormalizados;
 
     private Vector<String> vectorPalabras;
     private Vector<VectorFrecuenciasPalabras> listaVectoresDeFrecuencias;
-
-    //Constructor que lee la lista de comentarios normalizados desde un archivo local
-    public GestionarVectorPalabras(){
-        vectorPalabras = new Vector();
-        listaVectoresDeFrecuencias = new Vector();        
-        //listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados();
-        ///*TEMPORAL!*/Main.listaComentariosNormalizados = listaComentariosNormalizados;/*TEMPORAL!*/
-        listaComentariosNormalizados = Main.listaComentariosNormalizados;
-    }
-
+    
     //Constructor que recibe como parametro la lista de comentarios normalizados.
     public GestionarVectorPalabras(Vector<ComentarioNormalizado> listaComentariosNormalizados){
         vectorPalabras = new Vector();
         listaVectoresDeFrecuencias = new Vector();
-        this.listaComentariosNormalizados = listaComentariosNormalizados;
+        this.listaComentariosNormalizados = new Vector(listaComentariosNormalizados);
     }
 
     //Contruye un vector de palabras, con todas las palabras diferentes contenidas en una lista de comentarios.
@@ -44,10 +38,8 @@ public class GestionarVectorPalabras {
                 }
             }            
         }
-        vectorPalabras.addElement("ComentarioVacio");
-        //-------------------------------
-        System.out.println("--Vector de palabras creado--");        
-        //-------------------------------        
+        vectorPalabras.addElement("ComentarioVacio");        
+        LOG.info("Vector de palabras creado");                
     }
 
     //Crea un vector de frecuencias de palabras para cada uno de los comentarios de la lista de comentarios normalizados
@@ -61,35 +53,50 @@ public class GestionarVectorPalabras {
     //Vector de frecuencias Comentario 2: [   0    ,    0    ,    1    ,    1    ]
     //Vector de frecuencias Comentario 3: [   1    ,    0    ,    1    ,    0    ]
     public void generarVectoresDeFrecuenciasDePalabras(){
+        int dbpedia = 0, wordnet = 0;
         for(int i=0; i<listaComentariosNormalizados.size(); i++){
             VectorFrecuenciasPalabras vectorFrecuenciasPalabras = new VectorFrecuenciasPalabras(vectorPalabras.size());
             for(int j=0; j<listaComentariosNormalizados.elementAt(i).obtenerListaPalabrasEnComentario().size(); j++){
                 String palabra =  listaComentariosNormalizados.elementAt(i).obtenerListaPalabrasEnComentario().elementAt(j);
-                int posicionPalabra = vectorPalabras.indexOf(palabra);                
-                vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra);
+                int posicionPalabra = vectorPalabras.indexOf(palabra);
+                if(palabra.startsWith("@")){
+                    wordnet++;
+                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,2);
+                }
+                else if(palabra.startsWith("#")){
+                    dbpedia++;
+                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,1);
+                }
+                else{
+                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,1);
+                }                
             }
-            if(esComentarioVacio(listaComentariosNormalizados.elementAt(i)))
+            if(esComentarioVacio(listaComentariosNormalizados.elementAt(i))){
                 vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicionDeComentarioVacio();
+            }
             listaVectoresDeFrecuencias.add(vectorFrecuenciasPalabras);
         }
-        //-------------------------------
-        System.out.println("--Frecuencias generadas--");
-        //-------------------------------
+        LOG.info("DB: "+dbpedia+"\tWN: "+wordnet);
+        LOG.info("Frecuencias generadas");
     }
 
     //Verifica si la plabra ya ha sido almacenada en el vector de palabras.
     public boolean palabraEstaGuardada(String palabra){
-        if(vectorPalabras.contains(palabra))
+        if(vectorPalabras.contains(palabra)){
             return true;
-        else
+        }
+        else{
             return false;
+        }
     }
 
     public boolean esComentarioVacio(ComentarioNormalizado comentario){
-        if(comentario.obtenerListaPalabrasEnComentario().isEmpty())
+        if(comentario.obtenerListaPalabrasEnComentario().isEmpty()){
             return true;
-        else
+        }
+        else{
             return false;
+        }
     }
 
     public Vector<ComentarioNormalizado> obtenerListaComentariosNormalizados(){
@@ -101,7 +108,30 @@ public class GestionarVectorPalabras {
     }
 
     public Vector<VectorFrecuenciasPalabras> obtenerListaVectoresDeFrecuencias(){
+//        Vector<Integer> frecuencias = new Vector();
+//        for(int i=0;i<listaVectoresDeFrecuencias.size();i++){
+//            int fre = Collections.max(listaVectoresDeFrecuencias.elementAt(i).obtenerVectorFrecuenciasPalabras());
+//            frecuencias.addElement(fre);
+//            if(fre>3){
+//                Vector<String> palabras = listaComentariosNormalizados.elementAt(i).obtenerListaPalabrasEnComentario();
+//                Vector<Integer> frecPalabras = listaVectoresDeFrecuencias.elementAt(i).obtenerVectorFrecuenciasPalabras();
+////                System.out.println("["+fre+"]"+" "+palabras);
+//                for(int j=0; j<frecPalabras.size(); j++){
+//                    int fre_i = frecPalabras.elementAt(j);
+//                    if(fre_i>3){
+//                        System.out.println("|"+vectorPalabras.elementAt(j)+"|: "+fre_i);
+//                    }
+//                }
+//            }
+//        }
+//        Collections.sort(frecuencias);
+//        for(int i=0; i<frecuencias.size(); i++){
+//            int fre = frecuencias.elementAt(i);
+//            if(fre>3){
+//                System.out.print(fre+", ");
+//            }
+//        }
+//        System.out.println("\n"+Matematicas.calcularPromedioListaEnteros(frecuencias));
         return listaVectoresDeFrecuencias;
     }
 }
-
