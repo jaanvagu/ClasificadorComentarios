@@ -15,7 +15,7 @@ public class Comentario {
     public Comentario(String autor, String mensaje, String fuente, Vector<String> etiquetas){
         this.autor = autor;
         this.mensaje = mensaje;
-        this.fuente = fuente;
+        this.fuente = fuente; //No es posible leerla, no siempre la tiene.
         this.etiquetas = etiquetas;
     }
 

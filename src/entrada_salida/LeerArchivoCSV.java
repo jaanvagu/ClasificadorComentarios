@@ -1,6 +1,6 @@
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Abril 30 de 2013
+ * Ultima modificacion: Mayo 24 de 2013
  */
 
 package entrada_salida;
@@ -9,6 +9,7 @@ import com.csvreader.CsvReader;
 import estructuras.Comentario;
 import java.util.Vector;
 import org.apache.log4j.Logger;
+import preprocesamiento.Preprocesamiento;
 
 public class LeerArchivoCSV {
     
@@ -43,7 +44,7 @@ public class LeerArchivoCSV {
     public void leerYAlmacenarLineasCSV(){
         if(cargarCSV()){
             try{                
-                Vector<Integer> indices = new Vector();
+                Vector<Integer> indices;
                 indices = indicesColumnasALeer(obtenerEncabezadoCSV());
                 while (lectorArchivosCSV.readRecord()){                       
                     Comentario comentarioLeido = convertirFilaLeidaAComentario(indices);
@@ -57,7 +58,7 @@ public class LeerArchivoCSV {
     }
 
     //Método que obtiene la primera fila del archivo CSV, la cual correponde al encabezado
-    //del mismo. Usa varios métodos auxiliares descritos posteriormente.
+    //del mismo.
     private Vector<String> obtenerEncabezadoCSV(){
         try{
             Vector<String> encabezadoCSV = new Vector();
@@ -82,9 +83,10 @@ public class LeerArchivoCSV {
     private Vector<Integer> indicesColumnasALeer(Vector<String> encabezadoCSV){
         Vector<Integer> indices = new Vector();
         for(int i=0; i<encabezadoCSV.size(); i++){
-            if(filtrarColumna(encabezadoCSV.elementAt(i)))
+            if(filtrarColumna(encabezadoCSV.elementAt(i))){
                 indices.addElement(i);
-        }        
+            }
+        }
         return indices;
     }
 
@@ -92,10 +94,12 @@ public class LeerArchivoCSV {
     //si se quiere omitir la columna que títula "Tono", este método devuelve false
     //cuando encuentra dicho título.
     private boolean filtrarColumna(String encabezadoColumna){
-        if(encabezadoColumna.equals("Tono") || encabezadoColumna.equals("Tipo"))
+        if(encabezadoColumna.equals("Tono") || encabezadoColumna.equals("Tipo") || encabezadoColumna.equals("Fuente")){
             return false;
-        else
+        }
+        else{
             return true;
+        }
     }
 
     //Método auxiliar que lee una fila un archivo CSV y obtiene los datos de cada celda
@@ -111,15 +115,13 @@ public class LeerArchivoCSV {
         try{
             for(int i=0; i<indices.size(); i++){
                 int posColumna = indices.elementAt(i);
-                String campoLeido = lectorArchivosCSV.get(posColumna);                
-                if(i==0){
+                String encabezado_i = Preprocesamiento.quitarAcentos(encabezadoArchivoCSV.elementAt(i).toLowerCase());
+                String campoLeido = lectorArchivosCSV.get(posColumna);
+                if(encabezado_i.equals("nombre") || encabezado_i.equals("autor")){
                     autor = campoLeido.trim();
                 }
-                else if (i==1){                    
-                    mensaje = campoLeido.trim();                    
-                }
-                else if (i==2){
-                    fuente = campoLeido.trim();
+                else if(encabezado_i.equals("mensaje")){
+                    mensaje = campoLeido.trim();
                 }
                 else{
                     todasEtiquetasLeidasPorFila.addElement(campoLeido.trim().toLowerCase());
@@ -127,12 +129,13 @@ public class LeerArchivoCSV {
                         etiquetasLeidasPorFila.addElement(campoLeido.trim().toLowerCase());
                     }
                 }
-            }            
-            etiquetasLeidasPorFila = identificarFormaEtiqueta(etiquetasLeidasPorFila,indices,todasEtiquetasLeidasPorFila);            
-            comentarioLeido = new Comentario(autor, mensaje, fuente, etiquetasLeidasPorFila);            
+            }
+            etiquetasLeidasPorFila = identificarFormaEtiqueta(etiquetasLeidasPorFila,indices,todasEtiquetasLeidasPorFila);
+            comentarioLeido = new Comentario(autor, mensaje, fuente, etiquetasLeidasPorFila);
         }
         catch(Exception e){
-            LOG.error("Error en convertirFilaLeidaAComentario: "+e.getMessage());
+//            LOG.error("Error en convertirFilaLeidaAComentario: "+e.getMessage());
+            e.printStackTrace();
             return null;
         }
         return comentarioLeido;
@@ -154,10 +157,11 @@ public class LeerArchivoCSV {
     // Comentario1:    Y    |            |     a
     //Cuando la celda está vacía es porque dicha etiqueta no corresponde al comentario.
     private Vector<String> identificarFormaEtiqueta(Vector<String> etiquetasLeidas, Vector<Integer> indices, Vector<String> todasEtiquetasLeidas){
-        int posEtiquetaInicial = indices.elementAt(3);
+        int posEtiquetaInicial = indices.elementAt(2);//Arreglar número
         String etiquetaInicialEnEncabezadoCSV = encabezadoArchivoCSV.elementAt(posEtiquetaInicial);
-        if(etiquetaInicialEnEncabezadoCSV.length()>=6)
+        if(etiquetaInicialEnEncabezadoCSV.length()>=6){
             etiquetaInicialEnEncabezadoCSV = etiquetaInicialEnEncabezadoCSV.trim().substring(0, 6);
+        }
         //Forma 1
         if(etiquetaInicialEnEncabezadoCSV.equals("Catego")){
             return etiquetasLeidas;
@@ -173,7 +177,7 @@ public class LeerArchivoCSV {
             }
             if(!posicionesDeEtiquetas.isEmpty()){                
                 for(int i=0; i<posicionesDeEtiquetas.size(); i++){
-                    int posicionEnIndices = posicionesDeEtiquetas.elementAt(i)+3;
+                    int posicionEnIndices = posicionesDeEtiquetas.elementAt(i)+2;//Arreglar número
                     int posicionEtiquetaEnEncabezadoCSV = indices.elementAt(posicionEnIndices);
                     String etiquetaIdentificada = encabezadoArchivoCSV.elementAt(posicionEtiquetaEnEncabezadoCSV);
                     etiquetasIdentificadas.addElement(etiquetaIdentificada.toLowerCase());

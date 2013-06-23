@@ -93,9 +93,11 @@ public class ExtenderComentarios {
         Vector<String> listaPalabrasParaIdentificarSynsets = new Vector();
         for(int i=0; i<listaPalabrasComentarioOriginal_i.size(); i++){
             String tempPalabra = listaPalabrasComentarioOriginal_i.elementAt(i);
-            String palabraTraducida = DiccionarioEspanolIngles.traducirPalabraEspAIng(tempPalabra);
-            if((listaPalabrasRelevantes.esPalabraRelevante(tempPalabra)) && !(listaPalabrasParaIdentificarSynsets.contains(palabraTraducida))){
-                listaPalabrasParaIdentificarSynsets.add(palabraTraducida);
+            if(listaPalabrasRelevantes.esPalabraRelevante(tempPalabra)){
+                String palabraTraducida = DiccionarioEspanolIngles.traducirPalabraEspAIng(tempPalabra);
+                if(!listaPalabrasParaIdentificarSynsets.contains(palabraTraducida)){
+                    listaPalabrasParaIdentificarSynsets.add(palabraTraducida);
+                }
             }
         }
         Vector<String> listaPalabrasExtension = new Vector();

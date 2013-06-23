@@ -50,6 +50,7 @@ public class Preprocesamiento {
     //algunas funciones de limpieza de datos sobre dicha lista.
     public Preprocesamiento(Vector<Comentario> listaComentarios){   
         PropertyConfigurator.configure("log4j.properties");
+        LOG.info("Normalizando...");
         listaMensajesProcesados = new Vector();   
         for(int i=0; i<listaComentarios.size(); i++){
             String mensajeDeComentario = listaComentarios.elementAt(i).obtenerMensaje();                                    

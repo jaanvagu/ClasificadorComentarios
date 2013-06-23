@@ -126,7 +126,7 @@ public class GestionarDistancias {
                 double cardinalidad_B = cardinalidadVectorial(vectorB);
                 double similitud = (producto_A_B) / (cardinalidad_A*cardinalidad_B);                
                 gestionArchivos.escribirLineaEnArchivoTexto("N"+x+"\t"+"N"+y+"\t"+similitud);
-            }            
+            }
         }
         gestionArchivos.cerrarArchivoTexto();        
         LOG.info("Similitudes calculadas");        

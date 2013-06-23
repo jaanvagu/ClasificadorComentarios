@@ -41,7 +41,8 @@ public class GestionarSemillasLP {
     // entonces, el archivo semilla estará contenido por E1, E2, E3,... E10, con una frecuencia de 1 cada una.
     public void generarArchivoSemillas(int porcentaje){
         gestionArchivos.crearArchivoTexto("seeds",Main.listaComentariosNormalizados.size());
-        int porcentajeSemillas = Matematicas.calcularCantidadAPartirDePorcentajeQueRepresentaDeTotal(listaComentariosNormalizados.size(),porcentaje);
+        int porcentajeSemillas = Matematicas.calcularCantidadAPartirDePorcentajeQueRepresentaDeTotal
+                (listaComentariosNormalizados.size(),porcentaje);
         
         generarFrecuenciasEtiquetasTotales();
         llenarTablaCantMaximaPorEtiqueta(porcentaje);

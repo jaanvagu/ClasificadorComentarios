@@ -64,19 +64,20 @@ public class Main {
         }
         gestionArchivos = new GestionarArchivos();
         gestionArchivos.guardarComentariosNormalizados(listaComentariosNormalizados,"Normalizado");
-        LOG.info("Normalizacion Realizada");
+        LOG.info("Normalizacion terminada");
     }
-    
+
     private static void distribuir_EjecucionSecuencial(){
         String[] nombresArchivos = {"Balance","Coca Cola","Dog Chow","Don Julio","Kotex","Nike","Sony","Top Terra"};
-        int[] cantDatos =          {   400,      400,       400,       400,        400,   400,   400,     400};
+        int[] cantDatos =          {   1000,      1000,       1000,      600,      1000,  1000,  1000,    1000};
+//        int[] cantDatos =          {   400,      400,       400,       400,        400,   400,   400,     400};
         for(int i=0; i<nombresArchivos.length; i++){
             gestionArchivos = new GestionarArchivos();
-            listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Utiles SinEtiquetasMalas/","Consolidado "
-                    +nombresArchivos[i] + " - Utiles SinEtiquetasMalas", false);
+            listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Utiles Normalizados/",
+                    "Consolidado "+nombresArchivos[i] + " - Utiles Normalizados", false);
             distribuir = new DistribuirDatos(listaComentariosNormalizados);
 //            distribuir.generarListaSoloComentarioUtiles();
-            listaComentariosNormalizados = distribuir.generarDistribucionUniformeNDatos(cantDatos[i], 10);
+            listaComentariosNormalizados = distribuir.generarDistribucionUniformeNDatos(cantDatos[i]);
 //            listaComentariosNormalizados = distribuir.generarDistribucionUniformeNDatos(cantDatos[i]);
 //            listaComentariosNormalizados = distribuir.eliminarComentariosConPalabrasRepetidasEnExceso();
 //            distribuir.eliminarComentariosConEtiquetasMalas();
@@ -88,8 +89,8 @@ public class Main {
         String[] cantDatos = {"400","400","400","400","400","400","400","400"};
         for(int i=0; i<nombresArchivos.length; i++){
             gestionArchivos = new GestionarArchivos();
-            listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Distribuidos Uniformemente 10_Etiquetas/",
-                    "Consolidado "+nombresArchivos[i] + " - DistribuidosUniformeCanDefi "+cantDatos[i], false);
+            listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Distribuidos Uniformemente Todas_Etiquetas/",
+                    "Consolidado "+nombresArchivos[i] + " - DistribuidosUniforme "+cantDatos[i], false);
             
             extenderComentarios = new ExtenderComentarios(listaComentariosNormalizados);
             extenderComentarios.extender(false, true);
@@ -98,12 +99,12 @@ public class Main {
     
     private static void configParaLP_EjecucionSecuencial(){
         String[] nombresArchivos = {"Balance","Coca Cola","Dog Chow","Don Julio","Kotex","Nike","Sony","Top Terra"};
-//        String[] cantDatos = {"1000","1000","600","600","1000","1000","1000","1000"};
-        String[] cantDatos = {"400","400","400","400","400","400","400","400"};
+        String[] cantDatos = {      "1000",      "1000",   "1000",      "600",   "1000", "1000","1000",   "1000"};
+//        String[] cantDatos = {"400","400","400","400","400","400","400","400"};
         for(int i=0; i<nombresArchivos.length; i++){
             gestionArchivos = new GestionarArchivos();
             listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("",
-                    "Consolidado "+nombresArchivos[i] + " - Extendidos WN "+cantDatos[i], false);
+                    "Consolidado "+nombresArchivos[i] + " - DistribuidosUniforme "+cantDatos[i], false);
             
             gestionVectorPalabras = new GestionarVectorPalabras(listaComentariosNormalizados);
             gestionVectorPalabras.contruirVectorDePalabras();
@@ -120,34 +121,33 @@ public class Main {
     
     private static void indicadoresLP_EjecucionSecuencial(){
         String[] nombresArchivos = {"Balance","Coca Cola","Dog Chow","Don Julio","Kotex","Nike","Sony","Top Terra"};
-//        String[] cantDatos = {"1000","1000","600","600","1000","1000","1000","1000"};
-        String[] cantDatos =       {"400","400","400","400","400","400","400","400"};
+        String[] cantDatos = {       "1000",  "1000",       "1000",    "600",     "1000","1000","1000", "1000"};
+//        String[] cantDatos =       {"400","400","400","400","400","400","400","400"};
         for(int i=0; i<nombresArchivos.length; i++){
             gestionArchivos = new GestionarArchivos();
             listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("",
-                    "Consolidado "+nombresArchivos[i] + " - Extendidos WN "+cantDatos[i], false);
+                    "Consolidado "+nombresArchivos[i] + " - DistribuidosUniforme "+cantDatos[i], false);
             
             leerArchivoSalidaLP = new LeerArchivoSalidaLP(false);
             gestionIndicadores = new GestionarIndicadores(leerArchivoSalidaLP.obtenerListaEtiquetasCorrespondientes(), 
                     leerArchivoSalidaLP.obtenerListaEtiquetasPropagadasLP());
             gestionIndicadores.calcularIndicadores("LP");
-            gestionIndicadores.imprimirIndicadoresParaGrafica();
+//            gestionIndicadores.imprimirIndicadoresParaGrafica();
         }
     }
     
     private static void SVM_EjecucionSecuencial(){
         String[] nombresArchivos = {"Balance","Coca Cola","Dog Chow","Don Julio","Kotex","Nike","Sony","Top Terra"};
-//        String[] cantDatos = {"1000","1000","600","600","1000","1000","1000","1000"};
+//        String[] cantDatos = {       "1000",  "1000",       "1000",    "600",     "1000","1000","1000", "1000"};
         String[] cantDatos =       {"400","400","400","400","400","400","400","400"};
         for(int i=0; i<nombresArchivos.length; i++){
             gestionArchivos = new GestionarArchivos();
             listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("",
-                    "Consolidado "+nombresArchivos[i] + " - Extendidos WN "+cantDatos[i], false);
+                    "Consolidado "+nombresArchivos[i] + " - DistribuidosUniformeCanDefi "+cantDatos[i], false);
             
             gestionVectorPalabras = new GestionarVectorPalabras(listaComentariosNormalizados);
             gestionVectorPalabras.contruirVectorDePalabras();
             gestionVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
-            gestionVectorPalabras.obtenerListaVectoresDeFrecuencias();
             
             SVM = new SVM(listaComentariosNormalizados, gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
             SVM.ejecutarSVM(20);
@@ -168,21 +168,22 @@ public class Main {
 //        normalizarComentarios(lematizar.obtenerListaMensajesLematizados(), leerArchivoCSV.obtenerListaComentariosLeidos());
         
         // ********* CARGAR COMENTARIOS NORMALIZADOS *********
-        gestionArchivos = new GestionarArchivos();
-//        gestionArchivos.limpiaCarpetaArchivosPrueba(400);
+//        gestionArchivos = new GestionarArchivos();
+//        gestionArchivos.limpiaCarpetaArchivosPrueba(0);
 //        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Extendidos WN Distribuidos Uniforme 10_Etiquetas", "", true);
 //        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Distribuidos Uniformemente 10_Etiquetas SinMalas", "", true);
 //        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("Utiles Normalizados", "", true);
-        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("","", true);
+//        listaComentariosNormalizados = gestionArchivos.cargarComentariosNormalizados("","", true);
         
         // ********* EXTENSIÓN DE COMENTARIOS *********
-        extenderComentarios = new ExtenderComentarios(listaComentariosNormalizados);
-        listaComentariosNormalizados = new Vector(extenderComentarios.extender(false, true));
+//        extenderComentarios = new ExtenderComentarios(listaComentariosNormalizados);
+//        listaComentariosNormalizados = new Vector(extenderComentarios.extender(false, true));
 
         // ********* DISTRIBUCIÓN DE DATOS *********
 //        distribuir = new DistribuirDatos(listaComentariosNormalizados);
 //        distribuir.eliminarComentariosConEtiquetasMalas();
 //        listaComentariosNormalizados = distribuir.generarDistribucionUniformeNDatos(400,10);
+//        listaComentariosNormalizados = distribuir.generarDistribucionUniformeNDatos(1000);
 //        distribuir.generarDistribucionProporcionalNDatos(100);
 //        listaComentariosNormalizados = new Vector(distribuir.eliminarComentariosConPalabrasRepetidasEnExceso());
 //        distribuir.generarListaSoloComentarioUtiles();
@@ -193,10 +194,10 @@ public class Main {
 //        }
         
         // ********* EXTRACCIÓN DE CARACTERÍSTICAS *********
-        gestionVectorPalabras = new GestionarVectorPalabras(listaComentariosNormalizados);
-        gestionVectorPalabras.contruirVectorDePalabras();
-        gestionVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
-        gestionVectorPalabras.obtenerListaVectoresDeFrecuencias();
+//        gestionVectorPalabras = new GestionarVectorPalabras(listaComentariosNormalizados);
+//        gestionVectorPalabras.contruirVectorDePalabras();
+//        gestionVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
+//        gestionVectorPalabras.obtenerListaVectoresDeFrecuencias();
         
         // ********* SVM EJECUCIÓN *********
 //        SVM = new SVM(listaComentariosNormalizados, gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
@@ -208,34 +209,34 @@ public class Main {
 //        gestionIndicadores.imprimirIndicadoresParaGrafica();
         
         // ********* GRAFO, SEMILLAS Y CONFIGURACIÓN LABEL PROPAGATION *********
-        gestionDistancias = new GestionarDistancias();
-        gestionDistancias.calcularSimilitudCosenoEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
-        gestionSemillasLP = new GestionarSemillasLP(listaComentariosNormalizados);
-        gestionSemillasLP.generarArchivoSemillas(20);
-        gestionSemillasLP.generarArchivoSolucion();
-        ArchivoConfiguracionLP.generarArchivo(listaComentariosNormalizados.size());
+//        gestionDistancias = new GestionarDistancias();
+//        gestionDistancias.calcularSimilitudCosenoEntreCadaParDeComentarios(gestionVectorPalabras.obtenerListaVectoresDeFrecuencias());
+//        gestionSemillasLP = new GestionarSemillasLP(listaComentariosNormalizados);
+//        gestionSemillasLP.generarArchivoSemillas(20);
+//        gestionSemillasLP.generarArchivoSolucion();
+//        ArchivoConfiguracionLP.generarArchivo(listaComentariosNormalizados.size());
         
 //        // ********* LABEL PROPAGATION EJECUCIÓN *********
-        gestionLabelPropagation = new GestionarLabelPropagation();
-        gestionLabelPropagation.ejecutarLabelPropagation();
+//        gestionLabelPropagation = new GestionarLabelPropagation();
+//        gestionLabelPropagation.ejecutarLabelPropagation();
 //        
 //        // ********* INDICADORES PARA LABEL PROPAGATION *********
-        leerArchivoSalidaLP = new LeerArchivoSalidaLP(false);
-        gestionIndicadores = new GestionarIndicadores(leerArchivoSalidaLP.obtenerListaEtiquetasCorrespondientes(), leerArchivoSalidaLP.obtenerListaEtiquetasPropagadasLP());
-        gestionIndicadores.calcularIndicadores("LP");
-        gestionIndicadores.imprimirIndicadoresParaGrafica();
+//        leerArchivoSalidaLP = new LeerArchivoSalidaLP(true);
+//        gestionIndicadores = new GestionarIndicadores(leerArchivoSalidaLP.obtenerListaEtiquetasCorrespondientes(), leerArchivoSalidaLP.obtenerListaEtiquetasPropagadasLP());
+//        gestionIndicadores.calcularIndicadores("LP");
+//        gestionIndicadores.imprimirIndicadoresParaGrafica();
         
         // ********* EJECUCIONES SECUENCIALES *********
 //        extender_EjecucionSecuencial();
 //        distribuir_EjecucionSecuencial();
 //        configParaLP_EjecucionSecuencial();
 //        indicadoresLP_EjecucionSecuencial();
-//        SVM_EjecucionSecuencial();
+        SVM_EjecucionSecuencial();
         
         // ********* FINALIZACIONES *********
-        sonido.start();
+//        sonido.start();
 //        System.setErr(null);
 //        System.setOut(null);
-//        System.exit(0);
-    }    
-}    
+        System.exit(0);
+    }
+}

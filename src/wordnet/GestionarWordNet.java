@@ -1,6 +1,6 @@
 /* 
  * @author Jairo Andrés
- * Ultima modificacion: Mayo 6 de 2013
+ * Ultima modificacion: Mayo 7 de 2013
  */
 
 package wordnet;
@@ -26,10 +26,12 @@ public class GestionarWordNet {
         Vector<String> listaSynsets = new Vector();
         
         for(int i=0; i<listaPalabrasEnIngles.size(); i++){
+            System.out.println("\n");
             String palabra_i = listaPalabrasEnIngles.elementAt(i);
-            Synset[] synsetsPalabra_i = baseDatosWordNet.getSynsets(palabra_i);
+            Synset[] synsetsPalabra_i = baseDatosWordNet.getSynsets(palabra_i,SynsetType.NOUN);
             if(synsetsPalabra_i.length > 0){
                 for(int j=0; j<synsetsPalabra_i.length; j++){
+                    System.out.println(synsetsPalabra_i[j]);
                     String[] formasDeLaPalabra = synsetsPalabra_i[j].getWordForms();
                     for(int k=0; k<formasDeLaPalabra.length; k++){
                         String forma_k_Palabra = formasDeLaPalabra[k];
@@ -45,7 +47,7 @@ public class GestionarWordNet {
             else{
                 LOG.debug("No existe synset para: "+palabra_i);
             }
-        }        
+        }
         return listaSynsets;
     }
     
@@ -54,7 +56,7 @@ public class GestionarWordNet {
         
         for(int i=0; i<listaPalabrasEnIngles.size(); i++){
             String palabra_i = listaPalabrasEnIngles.elementAt(i);
-            Synset[] synsetsPalabra_i = baseDatosWordNet.getSynsets(palabra_i);
+            Synset[] synsetsPalabra_i = baseDatosWordNet.getSynsets(palabra_i,SynsetType.NOUN);
             if(synsetsPalabra_i.length > 0){
                 for(int j=0; j<synsetsPalabra_i.length; j++){
                     String[] formasDeLaPalabra = synsetsPalabra_i[j].getWordForms();
@@ -73,17 +75,18 @@ public class GestionarWordNet {
             else{
                 LOG.debug("No existe synset para: "+palabra_i);
             }
-        }        
+        }
         return listaSynsets;
     }
     
     public static void main(String[] args){
         GestionarWordNet g = new GestionarWordNet();
         Vector<String> v = new Vector();
-//        v.addElement("share");
+        v.addElement("share");
         v.addElement("car");
-        v.addElement("airplane");
-        System.out.println(g.obtenerSynsetsDeListaPalabras(v));
-        System.out.println(g.obtenerSynsetsDeListaPalabrasTraducidas(v));
+        v.addElement("save");
+        g.obtenerSynsetsDeListaPalabrasTraducidas(v);
+//        System.out.println("\n"+g.obtenerSynsetsDeListaPalabras(v));
+//        System.out.println(g.obtenerSynsetsDeListaPalabrasTraducidas(v));
     }
 }

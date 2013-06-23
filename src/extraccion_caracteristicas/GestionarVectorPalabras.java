@@ -61,11 +61,11 @@ public class GestionarVectorPalabras {
                 int posicionPalabra = vectorPalabras.indexOf(palabra);
                 if(palabra.startsWith("@")){
                     wordnet++;
-                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,2);
+                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,1);
                 }
                 else if(palabra.startsWith("#")){
                     dbpedia++;
-                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,1);
+                    vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,2);
                 }
                 else{
                     vectorFrecuenciasPalabras.aumentarFrecuenciaEnPosicion(posicionPalabra,1);

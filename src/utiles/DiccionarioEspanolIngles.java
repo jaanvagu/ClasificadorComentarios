@@ -222,8 +222,8 @@ public class DiccionarioEspanolIngles implements Serializable{
     public static void main(String[] args) {
         cargarDiccionarios("DiccionarioEspanol_Ingles");
         cargarDiccionarios("DiccionarioIngles_Espanol");
-        diccionarioEspanolIngles.put("avion", "plane");
-        diccionarioInglesEspanol.put("plane", "avion");
+        diccionarioEspanolIngles.put("experimentar", "experience");
+        diccionarioInglesEspanol.put("experience", "experimentar");
         guardarDiccionario("DiccionarioEspanol_Ingles");
         guardarDiccionario("DiccionarioIngles_Espanol");
         System.out.println(traducirPalabraEspAIng("avion"));

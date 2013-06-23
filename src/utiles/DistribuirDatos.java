@@ -219,12 +219,12 @@ public class DistribuirDatos {
     
     private void guardarListaNuevosComentarios(String tipo){
         GestionarArchivos ga = new GestionarArchivos();
-        ga.guardarComentariosNormalizados(nuevosComentariosDistribuidos, tipo);        
+        ga.guardarComentariosNormalizados(nuevosComentariosDistribuidos, tipo);
     }
     
     private void generarFrecuenciasEtiquetasTotales(){
-        for(int i=0; i<listaComentarios.size(); i++){           
-            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);            
+        for(int i=0; i<listaComentarios.size(); i++){
+            ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);
             if(!tempComentario.obtenerEtiquetas().isEmpty()){
                 String tempEtiqueta = tempComentario.obtenerEtiquetas().elementAt(0).toLowerCase();
                 if(!tablaFrecuenciasEtiquetasTotales.containsKey(tempEtiqueta)){
@@ -233,10 +233,14 @@ public class DistribuirDatos {
                 }
                 else{
                     int frecuenciaActual = tablaFrecuenciasEtiquetasTotales.get(tempEtiqueta);
-                    tablaFrecuenciasEtiquetasTotales.put(tempEtiqueta, ++frecuenciaActual);                    
-                }                                                                                
+                    tablaFrecuenciasEtiquetasTotales.put(tempEtiqueta, ++frecuenciaActual);
+                }
             }
-        }       
+        }
+//        for(int i=0; i<listaDeEtiquetasTotales.size(); i++){
+//            System.out.println(listaDeEtiquetasTotales.get(i)+"\t"+tablaFrecuenciasEtiquetasTotales.get(listaDeEtiquetasTotales.get(i)));
+//        }
+        LOG.debug("Cant Eti Totales: "+listaDeEtiquetasTotales.size()+"\n");
     }
     
     private void generarFrecuenciasEtiquetasUtiles(Vector<ComentarioNormalizado> listaOrigen){
@@ -244,13 +248,13 @@ public class DistribuirDatos {
         listaDeEtiquetasIncluidasEnNuevosComentarios = new ArrayList<String>();
         tablaFrecuenciasEtiquetasUtiles = new Hashtable<String, Integer>();
         
-        for(int i=0; i<listaOrigen.size(); i++){           
-            ComentarioNormalizado tempComentario = listaOrigen.elementAt(i);             
+        for(int i=0; i<listaOrigen.size(); i++){
+            ComentarioNormalizado tempComentario = listaOrigen.elementAt(i);
             if( !(tempComentario.obtenerEtiquetas().isEmpty()) &&
-                    !(tempComentario.obtenerListaPalabrasEnComentario().isEmpty()) &&                    
-                    !(existeComentarioEnVector(tempComentario,listaComentariosTodosDiferentes))                    
+                    !(tempComentario.obtenerListaPalabrasEnComentario().isEmpty()) &&
+                    !(existeComentarioEnVector(tempComentario,listaComentariosTodosDiferentes))
                     ){
-                String tempEtiqueta = tempComentario.obtenerEtiquetas().elementAt(0).toLowerCase();                
+                String tempEtiqueta = tempComentario.obtenerEtiquetas().elementAt(0).toLowerCase();
                 if(!(tablaFrecuenciasEtiquetasUtiles.containsKey(tempEtiqueta))){
                     tablaFrecuenciasEtiquetasUtiles.put(tempEtiqueta, 1);
                     listaDeEtiquetasIncluidasEnNuevosComentarios.add(tempEtiqueta);
@@ -260,16 +264,20 @@ public class DistribuirDatos {
                     int frecuenciaActual = tablaFrecuenciasEtiquetasUtiles.get(tempEtiqueta);
                     tablaFrecuenciasEtiquetasUtiles.put(tempEtiqueta, ++frecuenciaActual);
                     listaComentariosTodosDiferentes.add(tempComentario);
-                }                                
-            }                      
+                }
+            }
         }        
         for(int i=0; i<listaDeEtiquetasIncluidasEnNuevosComentarios.size(); i++){
-            LOG.debug("> "+listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)+"\t"+tablaFrecuenciasEtiquetasUtiles.get(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)));
-        }        
-    }        
+//            LOG.debug("> "+listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)+"\t"+tablaFrecuenciasEtiquetasUtiles.get(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)));
+//            System.out.println(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)+"\t"+tablaFrecuenciasEtiquetasUtiles.get(listaDeEtiquetasIncluidasEnNuevosComentarios.get(i)));
+        }
+    }
     
     public void generarListaSoloComentarioUtiles(){
         generarFrecuenciasEtiquetasUtiles(listaComentarios);
+        int sinEti = 0;
+        int repetidos = 0;
+        int vacios = 0;
         
         for(int i=0; i<listaComentarios.size(); i++){
             ComentarioNormalizado tempComentario = listaComentarios.elementAt(i);
@@ -285,15 +293,28 @@ public class DistribuirDatos {
                     }
                 }
             }
+            else{
+                if(tempComentario.obtenerEtiquetas().isEmpty()){
+                    sinEti++;
+                }
+                if(tempComentario.obtenerListaPalabrasEnComentario().isEmpty()){
+                    vacios++;
+                }
+                if(existeComentarioEnVector(tempComentario,nuevosComentariosDistribuidos)){
+                    repetidos++;
+                }
+            }
         }
         comentarioUtiles = nuevosComentariosDistribuidos.size();
         guardarListaNuevosComentarios("Utiles Normalizados");
-        LOG.debug("Tamaño Consolidado= "+listaComentarios.size());
-        LOG.debug("Utiles= "+comentarioUtiles+"\n");
-        generarFrecuenciasEtiquetasUtiles(nuevosComentariosDistribuidos);
+//        LOG.debug("Tamaño Consolidado= "+listaComentarios.size());
+//        LOG.debug("Utiles= "+comentarioUtiles+"\n");
+//        System.out.println(""+repetidos+"\n"+vacios+"\n"+sinEti);
+//        generarFrecuenciasEtiquetasUtiles(nuevosComentariosDistribuidos);
     }
     
     public Vector<ComentarioNormalizado> eliminarComentariosConPalabrasRepetidasEnExceso(){
+        int borrados = 0;
         GestionarVectorPalabras gVectorPalabras = new GestionarVectorPalabras(listaComentarios);
         gVectorPalabras.contruirVectorDePalabras();
         gVectorPalabras.generarVectoresDeFrecuenciasDePalabras();
@@ -307,7 +328,9 @@ public class DistribuirDatos {
         for(int i=0; i<posicionesAEliminar.size(); i++){
             int posAEliminar = (posicionesAEliminar.get(i) - i);
             listaComentarios.remove(posAEliminar);
+            borrados++;
         }
+        System.out.println("Borrados por palabras en exceso: "+borrados);
         GestionarArchivos ga = new GestionarArchivos();
         ga.guardarComentariosNormalizados(listaComentarios, "Utiles Normalizados");
         return listaComentarios;

@@ -29,7 +29,7 @@ public class LeerArchivoSalidaLP {
             if(elegirRuta){
 //                fis = new FileInputStream(new GestionarArchivos().obtenerRutaArchivo("C:/Label_Propagation/Datos_Prueba"));
                 fis = new FileInputStream(new GestionarArchivos().obtenerRutaArchivo("D:/Archivos/Archivos de la Universidad/Semestre 10/"
-                        + "Trabajo de Grado II/Histórico de Pruebas/Sistema v1.1.1/Datos_Prueba v1.1.1"));
+                        + "Trabajo de Grado II/Histórico de Pruebas/Sistema v1.1.0/Datos_Prueba v1.1.0"));
             }
             else{
                 fis = new FileInputStream("C:/Label_Propagation/Datos_Prueba/Datos_"+

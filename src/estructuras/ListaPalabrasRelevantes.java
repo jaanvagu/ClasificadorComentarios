@@ -60,19 +60,19 @@ public class ListaPalabrasRelevantes {
             String tempPalabra = listaPalabrasDiferentes.get(i);
             String categoriaLexica = tablaPalabras_CategoriaLexica.get(tempPalabra);
             
-//            if(DiccionarioEspanolIngles.tieneTraduccionEspAIng(tempPalabra)){
-//                if((categoriaLexica.equals("ADJ")) ||
-//                        (categoriaLexica.equals("ADV")) ||
-//                        (categoriaLexica.equals("NP")) ||
-//                        (categoriaLexica.equals("NC")) ||
-//                        (categoriaLexica.endsWith("adj"))
-//                        ){
+            if(DiccionarioEspanolIngles.tieneTraduccionEspAIng(tempPalabra)){
+                if((categoriaLexica.equals("ADJ")) ||
+                        (categoriaLexica.equals("ADV")) ||
+                        (categoriaLexica.equals("NP")) ||
+                        (categoriaLexica.equals("NC")) ||
+                        (categoriaLexica.endsWith("adj"))
+                        ){
 //                    if(contarEnCuantosComentariosAparecePalabra(tempPalabra) <= cantMaximaDeComentariosEnQueAparece){
                         tablaPalabrasRelevantes.put(tempPalabra, categoriaLexica);
 //                    }
-//                }
+                }
                 delTotalTieneTraduccion++;
-//            }
+            }
         }
         LOG.debug("Total Palabras: "+listaPalabrasDiferentes.size());
         LOG.debug("Del total tienen traduccion: "+delTotalTieneTraduccion+
@@ -94,7 +94,7 @@ public class ListaPalabrasRelevantes {
             }
         }
         return cantidadApariciones;
-    } 
+    }
     
     private void generarListaPalabrasDiferentes(){
         for(int i=0; i<listaComentariosOriginales.size(); i++){
@@ -102,10 +102,10 @@ public class ListaPalabrasRelevantes {
             for(int j=0; j<listaPalabrasComentario.size(); j++){
                 String tempPalabra = listaPalabrasComentario.elementAt(j);
                 if(!listaPalabrasDiferentes.contains(tempPalabra)){
-                    listaPalabrasDiferentes.add(tempPalabra);                    
+                    listaPalabrasDiferentes.add(tempPalabra);
                 }
             }
-        }        
+        }
     }
     
     public boolean esPalabraRelevante(String palabra){

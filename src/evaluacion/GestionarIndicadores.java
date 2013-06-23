@@ -1,6 +1,6 @@
 /*
  * @author Jairo Andrés
- * Ultima modificacion: Mayo 6 de 2013
+ * Ultima modificacion: Mayo 7 de 2013
  */
 
 package evaluacion;
@@ -156,7 +156,6 @@ public class GestionarIndicadores {
     }
         
     public void calcularAciertosTotales(){
-        System.out.println("\n"+GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
         etiDiferentes = tabla_Etiqueta_AparicionesTotalesCorrespondientes.keys();
         int correctas = 0, total = 0;
         while(etiDiferentes.hasMoreElements()){
@@ -166,8 +165,9 @@ public class GestionarIndicadores {
             }
             total += tabla_Etiqueta_AparicionesTotalesCorrespondientes.get(etiqueta);
         }
-        System.out.println("{"+correctas+" aciertos de "+total+"} | "
-                +Matematicas.calcularPorcentajeQueRepresentaCantidadRespectoTotal(correctas,total)+"% de efectividad");        
+        System.out.println("{"+correctas+" aciertos de "+total+"}");
+        System.out.println("Efectividad\t"+Matematicas.calcularPorcentajeQueRepresentaCantidadRespectoTotal(correctas,total)+"%");
+        System.out.println(GestionarArchivos.obtenerNombreDelConsolidadoSinEspacios());
     }
     
     public void imprimirResultadosObtenidos(String algoritmo){ 
